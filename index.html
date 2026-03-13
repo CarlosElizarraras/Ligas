@@ -70,7 +70,6 @@
   .standings-table tbody td{padding:8px 10px;text-align:center;border-bottom:1px solid rgba(255,255,255,.03);font-size:13px;white-space:nowrap;}
   .standings-table tbody td:nth-child(2){text-align:left;}
   @media(max-width:540px){.col-gf,.col-gc{display:none;}}
-  @media(max-width:460px){.col-e{display:none;}}
   .pos-num{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;color:var(--text2);width:24px;text-align:center;display:inline-block;}
   .team-cell{display:flex;align-items:center;gap:8px;font-weight:500;font-size:13px;min-width:120px;}
   .team-emoji{font-size:15px;flex-shrink:0;line-height:1;}
@@ -108,6 +107,11 @@
   .b-agg.tbd{color:var(--muted);font-size:11px;}
   .b-legs{display:flex;gap:8px;padding:4px 10px 6px;font-size:10px;color:var(--muted);}
   .b-leg-val{color:var(--text2);font-weight:500;}
+  .b-pen-bar{display:flex;align-items:center;gap:6px;padding:3px 10px 6px;font-size:10px;background:rgba(240,180,41,.07);border-top:1px solid rgba(240,180,41,.2);}
+  .b-pen-label{color:var(--accent);font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:.5px;font-size:10px;flex:1;}
+  .b-pen-score{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;color:var(--accent);}
+  .b-team.pen-winner{background:rgba(240,180,41,.12)!important;font-weight:700;}
+  .b-team.pen-loser{opacity:.45;}
 
   /* EDIT MODAL */
   .modal-overlay{display:none;position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.75);align-items:center;justify-content:center;padding:20px;}
@@ -340,6 +344,22 @@
           <input id="au-hg" type="number" min="0" max="20" value="0" style="text-align:center">
           <span class="score-sep">—</span>
           <input id="au-ag" type="number" min="0" max="20" value="0" style="text-align:center">
+        </div>
+      </div>
+      <div class="af" id="af-pen-wrap">
+        <label>¿Penales en esta vuelta? (si hay empate global)</label>
+        <select id="au-pen">
+          <option value="none">Sin penales</option>
+          <option value="home">Gana local en penales</option>
+          <option value="away">Gana visitante en penales</option>
+        </select>
+      </div>
+      <div class="af" id="af-pen-score-wrap" style="display:none">
+        <label>Marcador penales (local – visitante)</label>
+        <div class="score-row">
+          <input id="au-phg" type="number" min="0" max="20" value="5" style="text-align:center">
+          <span class="score-sep">–</span>
+          <input id="au-pag" type="number" min="0" max="20" value="4" style="text-align:center">
         </div>
       </div>
       <button class="btn-reg" id="btn-ucl-reg">REGISTRAR</button>
@@ -621,16 +641,31 @@ function renderUCL() {
       const a1 = (m.leg1[0]??0)+(m.leg2[0]??0);
       const a2 = (m.leg1[1]??0)+(m.leg2[1]??0);
       const has = m.leg1[0]!==null||m.leg2[0]!==null;
-      const w1 = has&&a1>a2?'winner':has&&a1<a2?'loser':'';
-      const w2 = has&&a2>a1?'winner':has&&a2<a1?'loser':'';
+      // Penalty support: m.pen = {winner:'home'|'away', score:[x,y]}
+      const tied = has && a1===a2;
+      const hasPen = tied && m.pen && m.pen.winner && m.pen.winner!=='none';
+      let w1='', w2='';
+      if(has) {
+        if(hasPen) {
+          w1 = m.pen.winner==='home' ? 'pen-winner' : 'pen-loser';
+          w2 = m.pen.winner==='away' ? 'pen-winner' : 'pen-loser';
+        } else {
+          w1 = a1>a2?'winner':a1<a2?'loser':'';
+          w2 = a2>a1?'winner':a2<a1?'loser':'';
+        }
+      }
       const cl = has?'b-agg':'b-agg tbd';
       const l1 = m.leg1[0]!==null?`${m.leg1[0]}–${m.leg1[1]}`:'–';
       const l2 = m.leg2[0]!==null?`${m.leg2[0]}–${m.leg2[1]}`:'–';
+      const penHTML = hasPen
+        ? `<div class="b-pen-bar"><span class="b-pen-label">🥅 PENALES</span><span class="b-pen-score">${m.pen.score[0]} – ${m.pen.score[1]}</span></div>`
+        : '';
       html += `<div class="b-match${isFinal?' is-final':''}">
         ${isFinal?'<div class="final-header">🏆 GRAN FINAL</div>':''}
         <div class="b-team ${w1}"><span style="flex:1">${m.home}</span><span class="${cl}">${has?a1:'TBD'}</span></div>
         <div class="b-team ${w2}"><span style="flex:1">${m.away}</span><span class="${cl}">${has?a2:'TBD'}</span></div>
         ${!isFinal?`<div class="b-legs"><span>Ida: <span class="b-leg-val">${l1}</span></span><span>Vuelta: <span class="b-leg-val">${l2}</span></span></div>`:''}
+        ${penHTML}
       </div>`;
     });
     html += '</div>';
@@ -688,18 +723,38 @@ function fillUCLMatches() {
 auRound.addEventListener('change', fillUCLMatches);
 fillUCLMatches();
 
+// Toggle penalty score fields
+document.getElementById('au-pen').addEventListener('change', function() {
+  document.getElementById('af-pen-score-wrap').style.display = this.value !== 'none' ? 'block' : 'none';
+});
+
 document.getElementById('btn-ucl-reg').addEventListener('click', () => {
   const r=auRound.value, mi=parseInt(auMatch.value);
   const leg=parseInt(document.getElementById('au-leg').value);
   const hg=parseInt(document.getElementById('au-hg').value)||0;
   const ag=parseInt(document.getElementById('au-ag').value)||0;
+  const penWinner=document.getElementById('au-pen').value;
+  const phg=parseInt(document.getElementById('au-phg').value)||5;
+  const pag=parseInt(document.getElementById('au-pag').value)||4;
   const fb=document.getElementById('fb-ucl');
   const m=state.ucl[r][mi]; if(!m) return;
   if(leg===1) m.leg1=[hg,ag]; else m.leg2=[hg,ag];
+  // Recalculate penalties: only apply if both legs played and aggregate is tied
+  const a1=(m.leg1[0]??0)+(m.leg2[0]??0);
+  const a2=(m.leg1[1]??0)+(m.leg2[1]??0);
+  const bothLegsPlayed = m.leg1[0]!==null && m.leg2[0]!==null;
+  if(bothLegsPlayed && a1===a2 && penWinner!=='none') {
+    m.pen = {winner: penWinner, score: [phg, pag]};
+  } else if(penWinner==='none' || !bothLegsPlayed || a1!==a2) {
+    m.pen = null;
+  }
   renderUCL(); persistState();
-  showFb(fb, `✓ ${m.home} ${hg}–${ag} ${m.away} (${leg===1?'ida':'vuelta'})`);
+  const penMsg = m.pen ? ` · Penales: ${m.pen.score[0]}–${m.pen.score[1]} (${m.pen.winner==='home'?m.home:m.away})` : '';
+  showFb(fb, `✓ ${m.home} ${hg}–${ag} ${m.away} (${leg===1?'ida':'vuelta'})${penMsg}`);
   document.getElementById('au-hg').value=0;
   document.getElementById('au-ag').value=0;
+  document.getElementById('au-pen').value='none';
+  document.getElementById('af-pen-score-wrap').style.display='none';
 });
 
 // ══════════════════════════════════════════════════════════
