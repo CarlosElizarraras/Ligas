@@ -509,6 +509,38 @@
   }
   .ap-feedback.err { color: var(--red); }
 
+  /* ── HISTORY ─────────────────────────────────── */
+  .h-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 7px 10px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    margin-bottom: 5px;
+    gap: 8px;
+  }
+  .h-item:hover { border-color: var(--border2); }
+  .h-match {
+    font-size: 12px; font-weight: 500; flex: 1;
+    overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+  }
+  .h-score {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 15px; font-weight: 700; color: var(--accent);
+    white-space: nowrap; flex-shrink: 0;
+  }
+  .h-del {
+    cursor: pointer; color: var(--muted); font-size: 15px;
+    flex-shrink: 0; padding: 2px 4px; border-radius: 4px;
+    transition: color 0.15s, background 0.15s;
+    line-height: 1;
+  }
+  .h-del:hover { color: var(--red); background: rgba(239,68,68,0.1); }
+  .h-empty {
+    font-size: 12px; color: var(--muted); text-align: center;
+    padding: 20px 0;
+  }
+
   /* ── LOADING ─────────────────────────────────── */
   .loading-overlay {
     position: fixed; inset: 0;
@@ -705,6 +737,7 @@
   </div>
   <div class="ap-tabs">
     <div class="ap-tab active" data-atab="league">Liga</div>
+    <div class="ap-tab" data-atab="history">Historial</div>
     <div class="ap-tab" data-atab="ucl">Champions</div>
     <div class="ap-tab" data-atab="settings">Config</div>
   </div>
@@ -742,7 +775,21 @@
       <div class="ap-feedback" id="fb-league"></div>
     </div>
 
-    <!-- CHAMPIONS -->
+    <!-- HISTORIAL -->
+    <div class="ap-section" id="atab-history">
+      <div class="af">
+        <label>Liga</label>
+        <select id="ah-league">
+          <option value="premier">Premier League</option>
+          <option value="laliga">La Liga</option>
+          <option value="bundesliga">Bundesliga</option>
+          <option value="seriea">Serie A</option>
+          <option value="ligue1">Ligue 1</option>
+        </select>
+      </div>
+      <div id="history-list" style="margin-top:4px;max-height:340px;overflow-y:auto"></div>
+      <div class="ap-feedback" id="fb-history"></div>
+    </div>
     <div class="ap-section" id="atab-ucl">
       <div class="af">
         <label>Ronda</label>
@@ -981,7 +1028,8 @@ const DEFAULT_UCL = {
 // ══════════════════════════════════════════════════════════
 let state = {
   leagues: JSON.parse(JSON.stringify(DEFAULT_LEAGUES)),
-  ucl: JSON.parse(JSON.stringify(DEFAULT_UCL))
+  ucl: JSON.parse(JSON.stringify(DEFAULT_UCL)),
+  history: { premier:[], laliga:[], bundesliga:[], seriea:[], ligue1:[] }
 };
 
 function persistState() {
@@ -1139,7 +1187,66 @@ function addForm(team, result) {
   if (team.form.length > 5) team.form.shift();
 }
 
-document.getElementById('btn-league-reg').addEventListener('click', async () => {
+// ── Recalculate a league from scratch using base stats + history ──
+function recalcLeague(key) {
+  // Reset to DEFAULT stats
+  const defaultTeams = DEFAULT_LEAGUES[key].teams;
+  state.leagues[key].teams = defaultTeams.map(t => ({ ...t, form: [] }));
+
+  // Replay all history entries
+  (state.history[key] || []).forEach(e => {
+    const ht = state.leagues[key].teams.find(t => t.name === e.home);
+    const at = state.leagues[key].teams.find(t => t.name === e.away);
+    if (!ht || !at) return;
+    ht.pj++; ht.gf += e.hg; ht.gc += e.ag;
+    at.pj++; at.gf += e.ag; at.gc += e.hg;
+    if (e.hg > e.ag)      { ht.g++; at.p++; addForm(ht,'w'); addForm(at,'l'); }
+    else if (e.hg < e.ag) { at.g++; ht.p++; addForm(ht,'l'); addForm(at,'w'); }
+    else                  { ht.dr++; at.dr++; addForm(ht,'d'); addForm(at,'d'); }
+  });
+
+  // Recalculate matchday
+  state.leagues[key].matchday = DEFAULT_LEAGUES[key].matchday + state.history[key].length;
+  document.getElementById('md-' + key).textContent = 'J' + state.leagues[key].matchday;
+}
+
+// ── Render history list ──
+function renderHistory(key) {
+  const list = document.getElementById('history-list');
+  const entries = state.history[key] || [];
+  if (entries.length === 0) {
+    list.innerHTML = '<div class="h-empty">Sin partidos registrados aún.</div>';
+    return;
+  }
+  list.innerHTML = [...entries].reverse().map((e, ri) => {
+    const realIdx = entries.length - 1 - ri;
+    const res = e.hg > e.ag ? `<span style="color:var(--green)">L</span>` :
+                e.hg < e.ag ? `<span style="color:var(--red)">V</span>` :
+                `<span style="color:var(--muted)">E</span>`;
+    return `<div class="h-item">
+      <div class="h-match" title="${e.home} vs ${e.away}">${e.home} vs ${e.away}</div>
+      <div class="h-score">${e.hg}–${e.ag}</div>
+      <div class="h-del" data-league="${key}" data-idx="${realIdx}" title="Eliminar partido">✕</div>
+    </div>`;
+  }).join('');
+
+  // Bind delete buttons
+  list.querySelectorAll('.h-del').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const k   = btn.dataset.league;
+      const idx = parseInt(btn.dataset.idx);
+      if (!confirm(`¿Eliminar: ${state.history[k][idx].home} ${state.history[k][idx].hg}–${state.history[k][idx].ag} ${state.history[k][idx].away}?`)) return;
+      state.history[k].splice(idx, 1);
+      recalcLeague(k);
+      renderTable(k);
+      renderHistory(k);
+      persistState();
+      showFb(document.getElementById('fb-history'), '✓ Partido eliminado y tabla recalculada');
+    });
+  });
+}
+
+document.getElementById('btn-league-reg').addEventListener('click', () => {
   const key  = alLeague.value;
   const hName= alHome.value;
   const aName= alAway.value;
@@ -1152,6 +1259,10 @@ document.getElementById('btn-league-reg').addEventListener('click', async () => 
   const at = state.leagues[key].teams.find(t => t.name === aName);
   if (!ht || !at) return;
 
+  // Save to history
+  if (!state.history[key]) state.history[key] = [];
+  state.history[key].push({ home: hName, away: aName, hg, ag });
+
   ht.pj++; ht.gf += hg; ht.gc += ag;
   at.pj++; at.gf += ag; at.gc += hg;
 
@@ -1163,13 +1274,16 @@ document.getElementById('btn-league-reg').addEventListener('click', async () => 
   document.getElementById('md-' + key).textContent = 'J' + state.leagues[key].matchday;
 
   renderTable(key);
-  await persistState();
+  persistState();
   showFb(fb, `✓ ${hName} ${hg}–${ag} ${aName}`);
   document.getElementById('al-hg').value = 0;
   document.getElementById('al-ag').value = 0;
 });
 
-// UCL register
+// History league selector
+const ahLeague = document.getElementById('ah-league');
+ahLeague.addEventListener('change', () => renderHistory(ahLeague.value));
+
 const auRound = document.getElementById('au-round');
 const auMatch = document.getElementById('au-match');
 
@@ -1182,7 +1296,7 @@ function fillUCLMatches() {
 auRound.addEventListener('change', fillUCLMatches);
 fillUCLMatches();
 
-document.getElementById('btn-ucl-reg').addEventListener('click', async () => {
+document.getElementById('btn-ucl-reg').addEventListener('click', () => {
   const r   = auRound.value;
   const mi  = parseInt(auMatch.value);
   const leg = parseInt(document.getElementById('au-leg').value);
@@ -1196,7 +1310,7 @@ document.getElementById('btn-ucl-reg').addEventListener('click', async () => {
   else           m.leg2 = [hg, ag];
 
   renderUCL();
-  await persistState();
+  persistState();
   showFb(fb, `✓ ${m.home} ${hg}–${ag} ${m.away} (${leg===1?'ida':'vuelta'})`);
   document.getElementById('au-hg').value = 0;
   document.getElementById('au-ag').value = 0;
@@ -1244,6 +1358,7 @@ document.querySelectorAll('.ap-tab').forEach(t => {
     document.querySelectorAll('.ap-section').forEach(x => x.classList.remove('active'));
     t.classList.add('active');
     document.getElementById('atab-' + t.dataset.atab).classList.add('active');
+    if (t.dataset.atab === 'history') renderHistory(document.getElementById('ah-league').value);
   });
 });
 
@@ -1272,41 +1387,45 @@ document.getElementById('btn-export').addEventListener('click', () => {
   }
 });
 
-document.getElementById('btn-import').addEventListener('change', async (ev) => {
+document.getElementById('btn-import').addEventListener('change', (ev) => {
   const fb   = document.getElementById('fb-settings');
   const file = ev.target.files[0];
   if (!file) return;
-  try {
-    const text    = await file.text();
-    const parsed  = JSON.parse(text);
-    const payload = parsed.data || parsed; // support both wrapped and raw
-    if (!payload.leagues || !payload.ucl) throw new Error('Formato inválido');
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const parsed  = JSON.parse(e.target.result);
+      const payload = parsed.data || parsed;
+      if (!payload.leagues || !payload.ucl) throw new Error('Formato inválido');
 
-    // Confirm if there is data already
-    const confirmed = confirm(`¿Reemplazar todos los datos actuales con los del archivo "${file.name}"?\n\nEsta acción no se puede deshacer.`);
-    if (!confirmed) { ev.target.value = ''; return; }
+      const confirmed = confirm(`¿Reemplazar todos los datos actuales con los del archivo "${file.name}"?\n\nEsta acción no se puede deshacer.`);
+      if (!confirmed) { ev.target.value = ''; return; }
 
-    state.leagues = payload.leagues;
-    state.ucl     = payload.ucl;
+      state.leagues = payload.leagues;
+      state.ucl     = payload.ucl;
+      if (payload.history) state.history = payload.history;
+      else state.history = { premier:[], laliga:[], bundesliga:[], seriea:[], ligue1:[] };
 
-    // Sync matchday badges
-    Object.keys(state.leagues).forEach(k => {
-      const md = document.getElementById('md-' + k);
-      if (md && state.leagues[k].matchday) md.textContent = 'J' + state.leagues[k].matchday;
-    });
+      ['premier','laliga','bundesliga','seriea','ligue1'].forEach(k => {
+        if (!state.history[k]) state.history[k] = [];
+      });
 
-    // Refresh team dropdowns
-    fillTeams(document.getElementById('al-league').value);
-    fillUCLMatches();
+      Object.keys(state.leagues).forEach(k => {
+        const md = document.getElementById('md-' + k);
+        if (md && state.leagues[k].matchday) md.textContent = 'J' + state.leagues[k].matchday;
+      });
 
-    renderAll();
-    await persistState();
-
-    showFb(fb, `✓ Datos importados desde "${file.name}"`);
-  } catch (e) {
-    showFb(fb, '✗ Archivo inválido o corrupto', true);
-  }
-  ev.target.value = ''; // reset so same file can be imported again
+      fillTeams(document.getElementById('al-league').value);
+      fillUCLMatches();
+      renderAll();
+      persistState();
+      showFb(fb, `✓ Datos importados desde "${file.name}"`);
+    } catch (e) {
+      showFb(fb, '✗ Archivo inválido o corrupto', true);
+    }
+    ev.target.value = '';
+  };
+  reader.readAsText(file);
 });
 
 document.getElementById('btn-reset').addEventListener('click', () => {
@@ -1314,6 +1433,7 @@ document.getElementById('btn-reset').addEventListener('click', () => {
   if (!confirm('¿Resetear TODOS los datos al estado inicial?\n\nEsta acción no se puede deshacer.')) return;
   state.leagues = JSON.parse(JSON.stringify(DEFAULT_LEAGUES));
   state.ucl     = JSON.parse(JSON.stringify(DEFAULT_UCL));
+  state.history = { premier:[], laliga:[], bundesliga:[], seriea:[], ligue1:[] };
   Object.keys(state.leagues).forEach(k => {
     const md = document.getElementById('md-' + k);
     if (md) md.textContent = 'J' + state.leagues[k].matchday;
@@ -1334,8 +1454,13 @@ function boot() {
     if (saved && saved.leagues && saved.ucl) {
       state.leagues = saved.leagues;
       state.ucl     = saved.ucl;
+      if (saved.history) state.history = saved.history;
     }
   } catch {}
+  // Ensure history keys exist
+  ['premier','laliga','bundesliga','seriea','ligue1'].forEach(k => {
+    if (!state.history[k]) state.history[k] = [];
+  });
   Object.keys(state.leagues).forEach(k => {
     const md = document.getElementById('md-' + k);
     if (md && state.leagues[k].matchday) md.textContent = 'J' + state.leagues[k].matchday;
