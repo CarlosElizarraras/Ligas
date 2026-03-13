@@ -6,18 +6,6 @@
 <title>EuroTracker 2025/26</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
 
-<!-- ═══════════════════════════════════════════════════════════════
-  INSTRUCCIONES DE CONFIGURACIÓN FIREBASE (solo necesitas hacer esto una vez)
-  ─────────────────────────────────────────────────────────────────
-  1. Ve a https://console.firebase.google.com
-  2. Crea un proyecto nuevo (ej. "eurotracker")
-  3. En el panel, haz clic en "</>" (Agregar app web)
-  4. Copia el objeto firebaseConfig que te da Firebase
-  5. Pégalo reemplazando el objeto firebaseConfig abajo
-  6. Ve a "Firestore Database" → "Crear base de datos" → Modo de prueba (30 días) o configura reglas
-  7. Sube a Netlify — todos los dispositivos verán los mismos datos
-  ═══════════════════════════════════════════════════════════════ -->
-
 <style>
   :root {
     --bg: #080b10;
@@ -561,40 +549,6 @@
   <div class="loading-txt" id="loadingTxt">Conectando…</div>
 </div>
 
-<!-- FIREBASE SETUP OVERLAY -->
-<div id="setup-overlay" class="hidden">
-  <div class="setup-box">
-    <div class="setup-logo">⚽ EUROTRACKER — Configuración</div>
-    <div class="setup-sub">Para sincronizar datos entre dispositivos necesitas conectar Firebase. Sigue estos pasos (es gratis y tarda ~5 minutos):</div>
-    <div class="setup-steps">
-      <div class="setup-step">
-        <div class="step-num">1</div>
-        <div class="step-text">Ve a <a href="https://console.firebase.google.com" target="_blank">console.firebase.google.com</a> y crea un proyecto nuevo (nombre libre, ej: <code>eurotracker</code>)</div>
-      </div>
-      <div class="setup-step">
-        <div class="step-num">2</div>
-        <div class="step-text">En el panel del proyecto haz clic en <code>&lt;/&gt;</code> (Agregar app web), ponle nombre y regístrala (sin Hosting)</div>
-      </div>
-      <div class="setup-step">
-        <div class="step-num">3</div>
-        <div class="step-text">Copia los valores del objeto <code>firebaseConfig</code> que aparece y pégalos abajo</div>
-      </div>
-      <div class="setup-step">
-        <div class="step-num">4</div>
-        <div class="step-text">Ve a <code>Firestore Database</code> → <code>Crear base de datos</code> → elige <code>Modo de prueba</code></div>
-      </div>
-    </div>
-    <div class="setup-fields">
-      <div class="setup-field"><input id="fb-apiKey"      placeholder="apiKey: AIzaSy…" /></div>
-      <div class="setup-field"><input id="fb-authDomain"  placeholder="authDomain: miproyecto.firebaseapp.com" /></div>
-      <div class="setup-field"><input id="fb-projectId"   placeholder="projectId: miproyecto" /></div>
-      <div class="setup-field"><input id="fb-appId"       placeholder="appId: 1:123…" /></div>
-    </div>
-    <button class="btn-setup" id="btn-save-config">GUARDAR Y CONECTAR</button>
-    <div class="setup-skip" id="skip-setup">Usar modo local (solo este dispositivo)</div>
-  </div>
-</div>
-
 <!-- HEADER -->
 <header>
   <div class="logo">⚽ <span>Euro</span>Tracker</div>
@@ -828,7 +782,7 @@
       <!-- SYNC STATUS -->
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding:9px 12px;background:var(--surface3);border-radius:8px;border:1px solid var(--border)">
         <span style="font-size:11px;color:var(--muted);letter-spacing:.5px;text-transform:uppercase">Modo sync</span>
-        <span id="sync-mode-label" style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;color:var(--text2)">–</span>
+        <span id="sync-mode-label" style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;color:var(--green)">localStorage ✓</span>
       </div>
 
       <!-- EXPORT / IMPORT -->
@@ -852,8 +806,8 @@
 
       <div style="width:100%;height:1px;background:var(--border);margin-bottom:14px"></div>
 
-      <!-- FIREBASE RECONFIG -->
-      <button class="btn-reg" style="background:var(--surface3);color:var(--text2);border:1px solid var(--border2);font-size:13px" id="btn-reconfig">🔧 RECONFIGURAR FIREBASE</button>
+      <!-- RESET -->
+      <button class="btn-reg" style="background:var(--surface3);color:var(--red);border:1px solid var(--red);font-size:13px" id="btn-reset">🗑 RESETEAR DATOS</button>
 
       <div class="ap-feedback" id="fb-settings"></div>
     </div>
@@ -861,10 +815,8 @@
   </div>
 </div>
 
-<!-- FIREBASE SDK -->
-<script type="module">
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
-import { getFirestore, doc, getDoc, setDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
+<!-- SCRIPT -->
+<script>
 
 // ══════════════════════════════════════════════════════════
 //  DEFAULT DATA
@@ -1031,66 +983,11 @@ let state = {
   leagues: JSON.parse(JSON.stringify(DEFAULT_LEAGUES)),
   ucl: JSON.parse(JSON.stringify(DEFAULT_UCL))
 };
-let db = null;
-let syncMode = 'local'; // 'firebase' | 'local'
 
-// ══════════════════════════════════════════════════════════
-//  FIREBASE CONFIG (stored in localStorage)
-// ══════════════════════════════════════════════════════════
-function getSavedConfig() {
-  try { return JSON.parse(localStorage.getItem('fb_config') || 'null'); } catch { return null; }
-}
-function saveConfig(cfg) {
-  localStorage.setItem('fb_config', JSON.stringify(cfg));
+function persistState() {
+  localStorage.setItem('eurotracker_local', JSON.stringify(state));
 }
 
-async function initFirebase(cfg) {
-  try {
-    const app = initializeApp(cfg);
-    db = getFirestore(app);
-    // Test connection
-    const ref = doc(db, 'eurotracker', 'data');
-    const snap = await getDoc(ref);
-    if (snap.exists()) {
-      const d = snap.data();
-      if (d.leagues) state.leagues = d.leagues;
-      if (d.ucl)     state.ucl     = d.ucl;
-    } else {
-      await setDoc(ref, { leagues: state.leagues, ucl: state.ucl });
-    }
-    // Real-time listener
-    onSnapshot(ref, (s) => {
-      if (s.exists()) {
-        const d = s.data();
-        if (d.leagues) state.leagues = d.leagues;
-        if (d.ucl)     state.ucl     = d.ucl;
-        renderAll();
-      }
-    });
-    syncMode = 'firebase';
-    setSyncStatus('ok', 'Sincronizado');
-    document.getElementById('sync-mode-label').textContent = 'Firebase (en la nube)';
-    return true;
-  } catch (err) {
-    console.error('Firebase error:', err);
-    setSyncStatus('err', 'Error Firebase');
-    return false;
-  }
-}
-
-async function persistState() {
-  if (syncMode === 'firebase' && db) {
-    try {
-      await setDoc(doc(db, 'eurotracker', 'data'), { leagues: state.leagues, ucl: state.ucl });
-    } catch (e) { setSyncStatus('err', 'Error guardando'); }
-  } else {
-    localStorage.setItem('eurotracker_local', JSON.stringify(state));
-  }
-}
-
-// ══════════════════════════════════════════════════════════
-//  SYNC STATUS
-// ══════════════════════════════════════════════════════════
 function setSyncStatus(type, label) {
   const dot = document.getElementById('syncDot');
   const lbl = document.getElementById('syncLabel');
@@ -1350,12 +1247,6 @@ document.querySelectorAll('.ap-tab').forEach(t => {
   });
 });
 
-document.getElementById('btn-reconfig').addEventListener('click', () => {
-  localStorage.removeItem('fb_config');
-  document.getElementById('setup-overlay').classList.remove('hidden');
-  document.getElementById('adminPanel').classList.remove('open');
-});
-
 // ══════════════════════════════════════════════════════════
 //  EXPORT / IMPORT
 // ══════════════════════════════════════════════════════════
@@ -1418,67 +1309,40 @@ document.getElementById('btn-import').addEventListener('change', async (ev) => {
   ev.target.value = ''; // reset so same file can be imported again
 });
 
-// ══════════════════════════════════════════════════════════
-//  SETUP OVERLAY
-// ══════════════════════════════════════════════════════════
-document.getElementById('btn-save-config').addEventListener('click', async () => {
-  const cfg = {
-    apiKey:      document.getElementById('fb-apiKey').value.trim(),
-    authDomain:  document.getElementById('fb-authDomain').value.trim(),
-    projectId:   document.getElementById('fb-projectId').value.trim(),
-    appId:       document.getElementById('fb-appId').value.trim(),
-  };
-  if (!cfg.apiKey || !cfg.projectId) { alert('Completa al menos apiKey y projectId'); return; }
-  saveConfig(cfg);
-  document.getElementById('setup-overlay').classList.add('hidden');
-  document.getElementById('loadingOverlay').classList.remove('hidden');
-  document.getElementById('loadingTxt').textContent = 'Conectando a Firebase…';
-  const ok = await initFirebase(cfg);
-  if (!ok) {
-    setSyncStatus('err', 'Error de conexión');
-    document.getElementById('fb-settings').textContent = 'Error al conectar. Verifica las credenciales.';
-  }
-  document.getElementById('loadingOverlay').classList.add('hidden');
+document.getElementById('btn-reset').addEventListener('click', () => {
+  const fb = document.getElementById('fb-settings');
+  if (!confirm('¿Resetear TODOS los datos al estado inicial?\n\nEsta acción no se puede deshacer.')) return;
+  state.leagues = JSON.parse(JSON.stringify(DEFAULT_LEAGUES));
+  state.ucl     = JSON.parse(JSON.stringify(DEFAULT_UCL));
+  Object.keys(state.leagues).forEach(k => {
+    const md = document.getElementById('md-' + k);
+    if (md) md.textContent = 'J' + state.leagues[k].matchday;
+  });
+  fillTeams(document.getElementById('al-league').value);
+  fillUCLMatches();
   renderAll();
-});
-
-document.getElementById('skip-setup').addEventListener('click', () => {
-  document.getElementById('setup-overlay').classList.add('hidden');
-  document.getElementById('loadingOverlay').classList.add('hidden');
-  syncMode = 'local';
-  setSyncStatus('local', 'Solo local');
-  document.getElementById('sync-mode-label').textContent = 'Local (solo este dispositivo)';
-  // Load local if exists
-  try {
-    const saved = JSON.parse(localStorage.getItem('eurotracker_local') || 'null');
-    if (saved) { if (saved.leagues) state.leagues = saved.leagues; if (saved.ucl) state.ucl = saved.ucl; }
-  } catch {}
-  renderAll();
+  persistState();
+  showFb(fb, '✓ Datos reseteados al estado inicial');
 });
 
 // ══════════════════════════════════════════════════════════
 //  BOOT
 // ══════════════════════════════════════════════════════════
-async function boot() {
-  const cfg = getSavedConfig();
-  if (cfg && cfg.apiKey) {
-    document.getElementById('loadingTxt').textContent = 'Conectando a Firebase…';
-    const ok = await initFirebase(cfg);
-    if (!ok) {
-      // fallback local
-      try {
-        const saved = JSON.parse(localStorage.getItem('eurotracker_local') || 'null');
-        if (saved) { if (saved.leagues) state.leagues = saved.leagues; if (saved.ucl) state.ucl = saved.ucl; }
-      } catch {}
-      syncMode = 'local';
-      setSyncStatus('local', 'Modo local');
+function boot() {
+  try {
+    const saved = JSON.parse(localStorage.getItem('eurotracker_local') || 'null');
+    if (saved && saved.leagues && saved.ucl) {
+      state.leagues = saved.leagues;
+      state.ucl     = saved.ucl;
     }
-    document.getElementById('loadingOverlay').classList.add('hidden');
-    renderAll();
-  } else {
-    document.getElementById('loadingOverlay').classList.add('hidden');
-    document.getElementById('setup-overlay').classList.remove('hidden');
-  }
+  } catch {}
+  Object.keys(state.leagues).forEach(k => {
+    const md = document.getElementById('md-' + k);
+    if (md && state.leagues[k].matchday) md.textContent = 'J' + state.leagues[k].matchday;
+  });
+  setSyncStatus('ok', 'Guardado local');
+  document.getElementById('loadingOverlay').classList.add('hidden');
+  renderAll();
 }
 
 boot();
