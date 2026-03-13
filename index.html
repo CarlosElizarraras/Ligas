@@ -59,7 +59,7 @@
   .matchday-badge{margin-left:auto;padding:5px 12px;border-radius:20px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;white-space:nowrap;}
 
   .table-wrapper{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:10px;border:1px solid var(--border);}
-  .standings-table{width:100%;border-collapse:collapse;min-width:480px;}
+  .standings-table{width:100%;border-collapse:collapse;min-width:0;}
   .standings-table thead tr{background:var(--surface2);border-bottom:1px solid var(--border);}
   .standings-table thead th{padding:9px 10px;text-align:center;font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);white-space:nowrap;}
   .standings-table thead th:nth-child(1),.standings-table thead th:nth-child(2){text-align:left;}
@@ -69,7 +69,15 @@
   .standings-table tbody tr:last-child td{border-bottom:none;}
   .standings-table tbody td{padding:8px 10px;text-align:center;border-bottom:1px solid rgba(255,255,255,.03);font-size:13px;white-space:nowrap;}
   .standings-table tbody td:nth-child(2){text-align:left;}
-  @media(max-width:540px){.col-gf,.col-gc{display:none;}}
+  /* Portrait: solo PJ, DIF y PTS */
+  @media (orientation:portrait) {
+    .col-v,.col-e,.col-d,.col-gf,.col-gc{display:none;}
+    .table-wrapper{overflow-x:visible;}
+  }
+  /* Landscape o pantalla ancha: todo visible */
+  @media (orientation:landscape),(min-width:600px) {
+    .col-v,.col-e,.col-d,.col-gf,.col-gc{display:table-cell;}
+  }
   .pos-num{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;color:var(--text2);width:24px;text-align:center;display:inline-block;}
   .team-cell{display:flex;align-items:center;gap:8px;font-weight:500;font-size:13px;min-width:120px;}
   .team-emoji{font-size:15px;flex-shrink:0;line-height:1;}
@@ -189,7 +197,7 @@
       <div class="matchday-badge" style="background:rgba(147,51,234,.15);color:var(--premier-c);border:1px solid var(--premier-c)" id="md-premier">J30</div>
     </div>
     <div class="table-wrapper"><table class="standings-table" id="table-premier">
-      <thead><tr><th style="width:30px">#</th><th>Club</th><th>PJ</th><th>V</th><th class="col-e">E</th><th>D</th><th class="col-gf">GF</th><th class="col-gc">GC</th><th>DIF</th><th>PTS</th></tr></thead>
+      <thead><tr><th style="width:30px">#</th><th>Club</th><th>PJ</th><th class="col-v">V</th><th class="col-e">E</th><th class="col-d">D</th><th class="col-gf">GF</th><th class="col-gc">GC</th><th>DIF</th><th>PTS</th></tr></thead>
       <tbody></tbody>
     </table></div>
     <div class="edit-hint">✏️ Toca un equipo para editar sus stats</div>
@@ -203,7 +211,7 @@
       <div class="matchday-badge" style="background:rgba(239,68,68,.15);color:var(--laliga-c);border:1px solid var(--laliga-c)" id="md-laliga">J27</div>
     </div>
     <div class="table-wrapper"><table class="standings-table" id="table-laliga">
-      <thead><tr><th style="width:30px">#</th><th>Club</th><th>PJ</th><th>V</th><th class="col-e">E</th><th>D</th><th class="col-gf">GF</th><th class="col-gc">GC</th><th>DIF</th><th>PTS</th></tr></thead>
+      <thead><tr><th style="width:30px">#</th><th>Club</th><th>PJ</th><th class="col-v">V</th><th class="col-e">E</th><th class="col-d">D</th><th class="col-gf">GF</th><th class="col-gc">GC</th><th>DIF</th><th>PTS</th></tr></thead>
       <tbody></tbody>
     </table></div>
     <div class="edit-hint">✏️ Toca un equipo para editar sus stats</div>
@@ -217,7 +225,7 @@
       <div class="matchday-badge" style="background:rgba(249,115,22,.15);color:var(--bundesliga-c);border:1px solid var(--bundesliga-c)" id="md-bundesliga">J25</div>
     </div>
     <div class="table-wrapper"><table class="standings-table" id="table-bundesliga">
-      <thead><tr><th style="width:30px">#</th><th>Club</th><th>PJ</th><th>V</th><th class="col-e">E</th><th>D</th><th class="col-gf">GF</th><th class="col-gc">GC</th><th>DIF</th><th>PTS</th></tr></thead>
+      <thead><tr><th style="width:30px">#</th><th>Club</th><th>PJ</th><th class="col-v">V</th><th class="col-e">E</th><th class="col-d">D</th><th class="col-gf">GF</th><th class="col-gc">GC</th><th>DIF</th><th>PTS</th></tr></thead>
       <tbody></tbody>
     </table></div>
     <div class="edit-hint">✏️ Toca un equipo para editar sus stats</div>
@@ -231,7 +239,7 @@
       <div class="matchday-badge" style="background:rgba(59,130,246,.15);color:var(--seriea-c);border:1px solid var(--seriea-c)" id="md-seriea">J28</div>
     </div>
     <div class="table-wrapper"><table class="standings-table" id="table-seriea">
-      <thead><tr><th style="width:30px">#</th><th>Club</th><th>PJ</th><th>V</th><th class="col-e">E</th><th>D</th><th class="col-gf">GF</th><th class="col-gc">GC</th><th>DIF</th><th>PTS</th></tr></thead>
+      <thead><tr><th style="width:30px">#</th><th>Club</th><th>PJ</th><th class="col-v">V</th><th class="col-e">E</th><th class="col-d">D</th><th class="col-gf">GF</th><th class="col-gc">GC</th><th>DIF</th><th>PTS</th></tr></thead>
       <tbody></tbody>
     </table></div>
     <div class="edit-hint">✏️ Toca un equipo para editar sus stats</div>
@@ -245,7 +253,7 @@
       <div class="matchday-badge" style="background:rgba(34,197,94,.15);color:var(--ligue1-c);border:1px solid var(--ligue1-c)" id="md-ligue1">J25</div>
     </div>
     <div class="table-wrapper"><table class="standings-table" id="table-ligue1">
-      <thead><tr><th style="width:30px">#</th><th>Club</th><th>PJ</th><th>V</th><th class="col-e">E</th><th>D</th><th class="col-gf">GF</th><th class="col-gc">GC</th><th>DIF</th><th>PTS</th></tr></thead>
+      <thead><tr><th style="width:30px">#</th><th>Club</th><th>PJ</th><th class="col-v">V</th><th class="col-e">E</th><th class="col-d">D</th><th class="col-gf">GF</th><th class="col-gc">GC</th><th>DIF</th><th>PTS</th></tr></thead>
       <tbody></tbody>
     </table></div>
     <div class="edit-hint">✏️ Toca un equipo para editar sus stats</div>
@@ -570,7 +578,7 @@ function renderTable(key) {
     return `<tr class="${zoneClass(pos,ld.zones)}" data-league="${key}" data-team="${t.name}">
       <td><span class="pos-num">${pos}</span></td>
       <td><div class="team-cell"><span class="team-emoji">${t.e}</span>${t.name}</div></td>
-      <td>${t.pj}</td><td>${t.g}</td><td class="col-e">${t.dr}</td><td>${t.p}</td>
+      <td>${t.pj}</td><td class="col-v">${t.g}</td><td class="col-e">${t.dr}</td><td class="col-d">${t.p}</td>
       <td class="col-gf">${t.gf}</td><td class="col-gc">${t.gc}</td>
       <td>${dgStr}</td><td><span class="pts">${p}</span></td>
     </tr>`;
