@@ -409,23 +409,23 @@ const FOTMOB_LOGOS = {
   'Arsenal':        '9825',
   'Man City':       '8456',
   'Man United':     '10260',
-  'Aston Villa':    'https://images.fotmob.com/image_resources/logo/teamlogo/10252.png',
+  'Aston Villa':    '8586',
   'Chelsea':        '8455',
   'Liverpool':      '8650',
   'Brentford':      '9937',
   'Everton':        '8668',
   'Bournemouth':    '8678',
-  'Fulham':         'https://images.fotmob.com/image_resources/logo/teamlogo/9879.png',
-  'Sunderland':     'https://images.fotmob.com/image_resources/logo/teamlogo/8472.png',
-  'Newcastle':      'https://images.fotmob.com/image_resources/logo/teamlogo/10261.png',
-  'Crystal Palace': 'https://images.fotmob.com/image_resources/logo/teamlogo/9826.png',
+  'Fulham':         '8677',
+  'Sunderland':     '8671',
+  'Newcastle':      '8657',
+  'Crystal Palace': '8670',
   'Brighton':       '10204',
-  'Leeds':          'https://images.fotmob.com/image_resources/logo/teamlogo/8463.png',
-  'Spurs':          'https://images.fotmob.com/image_resources/logo/teamlogo/8586.png',
-  "Nott'm Forest":  'https://images.fotmob.com/image_resources/logo/teamlogo/10203.png',
+  'Leeds':          '8524',
+  'Spurs':          '8672',
+  "Nott'm Forest":  '8473',
   'West Ham':       '8654',
-  'Burnley':        'https://images.fotmob.com/image_resources/logo/teamlogo/8191.png',
-  'Wolves':         'https://images.fotmob.com/image_resources/logo/teamlogo/8602.png',
+  'Burnley':        '8662',
+  'Wolves':         '8709',
   // La Liga
   'Barcelona':      '9847',
   'Real Madrid':    '9848',
@@ -519,7 +519,8 @@ const FOTMOB_LOGOS = {
 function teamLogo(name, size=20, cls='team-logo') {
   const id = FOTMOB_LOGOS[name];
   if(!id) return `<span style="display:inline-block;width:${size}px;height:${size}px;opacity:.4;font-size:${size-6}px;line-height:${size}px;text-align:center">⚽</span>`;
-  return `<img class="${cls}" src="https://images.fotmob.com/image_resources/logo/teamlogo/${id}.png" alt="${name}" width="${size}" height="${size}" loading="lazy" onerror="this.style.display='none'">`;
+  const url = id.startsWith('http') ? id : `https://images.fotmob.com/image_resources/logo/teamlogo/${id}.png`;
+  return `<img class="${cls}" src="${url}" alt="${name}" width="${size}" height="${size}" loading="lazy" onerror="this.style.display='none'">`;
 }
 
 // ══════════════════════════════════════════════════════════
