@@ -81,6 +81,8 @@
   .pos-num{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;color:var(--text2);width:24px;text-align:center;display:inline-block;}
   .team-cell{display:flex;align-items:center;gap:8px;font-weight:500;font-size:13px;min-width:120px;}
   .team-emoji{font-size:15px;flex-shrink:0;line-height:1;}
+  .team-logo{width:20px;height:20px;object-fit:contain;flex-shrink:0;display:block;}
+  .b-logo{width:18px;height:18px;object-fit:contain;flex-shrink:0;}
   .pts{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;color:var(--text);}
   .dg-pos{color:var(--green);}
   .dg-neg{color:var(--red);}
@@ -400,6 +402,127 @@
 
 <script>
 // ══════════════════════════════════════════════════════════
+//  FOTMOB TEAM LOGOS
+// ══════════════════════════════════════════════════════════
+const FOTMOB_LOGOS = {
+  // Premier League
+  'Arsenal':        '9825',
+  'Man City':       '8456',
+  'Man United':     '10260',
+  'Aston Villa':    '8586',
+  'Chelsea':        '8455',
+  'Liverpool':      '8650',
+  'Brentford':      '9937',
+  'Everton':        '8668',
+  'Bournemouth':    '8678',
+  'Fulham':         '8677',
+  'Sunderland':     '8671',
+  'Newcastle':      '8657',
+  'Crystal Palace': '8670',
+  'Brighton':       '10204',
+  'Leeds':          '8524',
+  'Spurs':          '8672',
+  "Nott'm Forest":  '8473',
+  'West Ham':       '8654',
+  'Burnley':        '8662',
+  'Wolves':         '8709',
+  // La Liga
+  'Barcelona':      '9847',
+  'Real Madrid':    '9848',
+  'Atlético':       '9849',
+  'Villarreal':     '9853',
+  'Betis':          '9858',
+  'Celta Vigo':     '9856',
+  'Espanyol':       '9864',
+  'Real Sociedad':  '9869',
+  'Getafe':         '9863',
+  'Athletic':       '9855',
+  'Osasuna':        '9867',
+  'Valencia':       '9870',
+  'Rayo':           '9868',
+  'Sevilla':        '9852',
+  'Girona':         '7732',
+  'Alavés':         '9857',
+  'Elche':          '9862',
+  'Mallorca':       '9866',
+  'Leganés':        '9865',
+  'Oviedo':         '10284',
+  // Bundesliga
+  'Bayern':         '9823',
+  'Dortmund':       '9789',
+  'Hoffenheim':     '9796',
+  'Stuttgart':      '9800',
+  'RB Leipzig':     '379488',
+  'Leverkusen':     '9821',
+  'Eintracht':      '9790',
+  'Freiburg':       '9791',
+  'Augsburg':       '9784',
+  'Hamburgo':       '9792',
+  'Union Berlin':   '9783',
+  'Gladbach':       '9787',
+  'Werder Bremen':  '9808',
+  'Colonia':        '9788',
+  'Mainz 05':       '9798',
+  'St. Pauli':      '9801',
+  'Wolfsburg':      '9806',
+  'Heidenheim':     '9795',
+  // Serie A
+  'Inter':          '9900',
+  'AC Milan':       '9904',
+  'Napoli':         '9914',
+  'Como':           '9921',
+  'Roma':           '9912',
+  'Juventus':       '9901',
+  'Atalanta':       '9905',
+  'Bologna':        '9906',
+  'Sassuolo':       '9913',
+  'Lazio':          '9909',
+  'Udinese':        '9916',
+  'Parma':          '9911',
+  'Torino':         '9915',
+  'Genoa':          '9908',
+  'Cagliari':       '9917',
+  'Lecce':          '9910',
+  'Fiorentina':     '9918',
+  'Cremonese':      '9903',
+  'Hellas Verona':  '9919',
+  'Pisa':           '9920',
+  // Ligue 1
+  'PSG':            '9871',
+  'Lens':           '9831',
+  'Marseille':      '9828',
+  'Lyon':           '9833',
+  'Rennes':         '9838',
+  'Lille':          '9832',
+  'Monaco':         '9827',
+  'Strasbourg':     '9839',
+  'Brest':          '9829',
+  'Lorient':        '9834',
+  'Angers':         '9822',
+  'Toulouse':       '9840',
+  'Paris FC':       '369636',
+  'Le Havre':       '9835',
+  'Nice':           '9836',
+  'Auxerre':        '9826',
+  'Nantes':         '9837',
+  'Metz':           '9825',
+  // UCL-only teams
+  'Galatasaray':    '8897',
+  'Atlético Madrid':'9849',
+  'Bodø/Glimt':     '294466',
+  'Bayer Leverkusen':'9821',
+  'Bayern München': '9823',
+  'Sporting CP':    '9766',
+  'Tottenham':      '8672',
+};
+
+function teamLogo(name, size=20, cls='team-logo') {
+  const id = FOTMOB_LOGOS[name];
+  if(!id) return `<span style="display:inline-block;width:${size}px;height:${size}px;opacity:.4;font-size:${size-6}px;line-height:${size}px;text-align:center">⚽</span>`;
+  return `<img class="${cls}" src="https://images.fotmob.com/image_resources/logo/teamlogo/${id}.png" alt="${name}" width="${size}" height="${size}" loading="lazy" onerror="this.style.display='none'">`;
+}
+
+// ══════════════════════════════════════════════════════════
 //  DEFAULT DATA
 // ══════════════════════════════════════════════════════════
 const DEFAULT_LEAGUES = {
@@ -577,7 +700,7 @@ function renderTable(key) {
     const dgStr = d>0 ? `<span class="dg-pos">+${d}</span>` : d<0 ? `<span class="dg-neg">${d}</span>` : `<span style="color:var(--muted)">0</span>`;
     return `<tr class="${zoneClass(pos,ld.zones)}" data-league="${key}" data-team="${t.name}">
       <td><span class="pos-num">${pos}</span></td>
-      <td><div class="team-cell"><span class="team-emoji">${t.e}</span>${t.name}</div></td>
+      <td><div class="team-cell">${teamLogo(t.name,20,'team-logo')}${t.name}</div></td>
       <td>${t.pj}</td><td class="col-v">${t.g}</td><td class="col-e">${t.dr}</td><td class="col-d">${t.p}</td>
       <td class="col-gf">${t.gf}</td><td class="col-gc">${t.gc}</td>
       <td>${dgStr}</td><td><span class="pts">${p}</span></td>
@@ -603,7 +726,7 @@ function openEditModal(league, teamName) {
   const t = state.leagues[league].teams.find(x => x.name === teamName);
   if(!t) return;
   editCtx = { league, teamName };
-  document.getElementById('modal-team-title').textContent = `✏️ ${t.e} ${t.name}`;
+  document.getElementById('modal-team-title').innerHTML = `✏️ ${teamLogo(t.name,18,'team-logo')} ${t.name}`;
   document.getElementById('ef-pj').value = t.pj;
   document.getElementById('ef-g').value  = t.g;
   document.getElementById('ef-dr').value = t.dr;
@@ -670,8 +793,8 @@ function renderUCL() {
         : '';
       html += `<div class="b-match${isFinal?' is-final':''}">
         ${isFinal?'<div class="final-header">🏆 GRAN FINAL</div>':''}
-        <div class="b-team ${w1}"><span style="flex:1">${m.home}</span><span class="${cl}">${has?a1:'TBD'}</span></div>
-        <div class="b-team ${w2}"><span style="flex:1">${m.away}</span><span class="${cl}">${has?a2:'TBD'}</span></div>
+        <div class="b-team ${w1}">${teamLogo(m.home,18,'b-logo')}<span style="flex:1">${m.home}</span><span class="${cl}">${has?a1:'TBD'}</span></div>
+        <div class="b-team ${w2}">${teamLogo(m.away,18,'b-logo')}<span style="flex:1">${m.away}</span><span class="${cl}">${has?a2:'TBD'}</span></div>
         ${!isFinal?`<div class="b-legs"><span>Ida: <span class="b-leg-val">${l1}</span></span><span>Vuelta: <span class="b-leg-val">${l2}</span></span></div>`:''}
         ${penHTML}
       </div>`;
