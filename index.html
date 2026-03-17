@@ -640,15 +640,17 @@ const DEFAULT_LEAGUES = {
   ]}
 };
 
+const UCL_VERSION = 2; // incrementar cada vez que se actualicen datos del DEFAULT_UCL
+
 const DEFAULT_UCL = {
   ro16:[
-    {home:'PSG',              away:'Chelsea',        leg1:[5,2], leg2:[null,null]},
+    {home:'PSG',              away:'Chelsea',        leg1:[5,2], leg2:[1,0]},
     {home:'Galatasaray',      away:'Liverpool',      leg1:[1,0], leg2:[null,null]},
-    {home:'Real Madrid',      away:'Manchester City',       leg1:[3,0], leg2:[null,null]},
+    {home:'Real Madrid',      away:'Manchester City',leg1:[3,0], leg2:[null,null]},
     {home:'Atalanta',         away:'Bayern München', leg1:[1,6], leg2:[null,null]},
     {home:'Newcastle',        away:'Barcelona',      leg1:[1,1], leg2:[null,null]},
     {home:'Atlético Madrid',  away:'Tottenham',      leg1:[5,2], leg2:[null,null]},
-    {home:'Bodø/Glimt',       away:'Sporting CP',    leg1:[3,0], leg2:[null,null]},
+    {home:'Bodø/Glimt',       away:'Sporting CP',    leg1:[3,0], leg2:[0,5]},
     {home:'Bayer Leverkusen', away:'Arsenal',        leg1:[1,1], leg2:[null,null]},
   ],
   qf:   [{home:'TBD',away:'TBD',leg1:[null,null],leg2:[null,null]},{home:'TBD',away:'TBD',leg1:[null,null],leg2:[null,null]},{home:'TBD',away:'TBD',leg1:[null,null],leg2:[null,null]},{home:'TBD',away:'TBD',leg1:[null,null],leg2:[null,null]}],
@@ -666,7 +668,7 @@ let state = {
 let editCtx = { league: null, teamName: null };
 
 function persistState() {
-  localStorage.setItem('eurotracker_local', JSON.stringify(state));
+  localStorage.setItem('eurotracker_local', JSON.stringify({...state, uclVersion: UCL_VERSION}));
 }
 function showFb(el, msg, isErr=false) {
   el.textContent = msg;
@@ -934,7 +936,7 @@ document.getElementById('btn-import').addEventListener('change', ev => {
 
 document.getElementById('btn-reset-ucl').addEventListener('click', () => {
   const fb=document.getElementById('fb-settings');
-  if(!confirm('¿Resetear solo el bracket de Champions League?\n\nLos datos de ligas no se tocan.')) return;
+  if(!confirm('¿Resetear solo el bracket UCL al estado actual del código?\n\nLos datos de ligas no se tocan.')) return;
   state.ucl=JSON.parse(JSON.stringify(DEFAULT_UCL));
   fillUCLMatches(); renderUCL(); persistState();
   showFb(fb,'✓ Bracket UCL reseteado');
@@ -986,23 +988,9 @@ document.querySelectorAll('.ap-tab').forEach(t => {
 function boot() {
   try {
     const saved=JSON.parse(localStorage.getItem('eurotracker_local')||'null');
-    if(saved&&saved.leagues&&saved.ucl){
-      state.leagues=saved.leagues;
-      // Merge UCL: conserva resultados guardados pero respeta estructura del DEFAULT
-      const rounds=['r16','qf','sf','final'];
-      rounds.forEach(r=>{
-        if(saved.ucl[r]){
-          saved.ucl[r].forEach((savedMatch,i)=>{
-            if(state.ucl[r][i]){
-              // Preservar equipos del default (pueden haber cambiado), conservar resultados guardados
-              state.ucl[r][i].leg1=savedMatch.leg1;
-              state.ucl[r][i].leg2=savedMatch.leg2;
-              if(savedMatch.pen) state.ucl[r][i].pen=savedMatch.pen;
-            }
-          });
-        }
-      });
-    }
+    if(saved&&saved.leagues) state.leagues=saved.leagues;
+    // Solo cargar UCL guardado si es de la misma versión; si no, usar DEFAULT actualizado
+    if(saved&&saved.ucl&&saved.uclVersion===UCL_VERSION) state.ucl=saved.ucl;
   } catch {}
   Object.keys(state.leagues).forEach(k => {
     const md=document.getElementById('md-'+k);
