@@ -397,6 +397,7 @@
         <div style="margin-top:7px;font-size:11px;color:var(--muted);line-height:1.5">Exporta un <code style="background:var(--surface3);padding:1px 5px;border-radius:3px;color:var(--text2)">.json</code> con todos los datos. Importa para restaurar en otro dispositivo.</div>
       </div>
       <div style="width:100%;height:1px;background:var(--border);margin-bottom:14px"></div>
+      <button class="btn-reg" style="background:var(--surface3);color:#f97316;border:1px solid #f97316;font-size:13px" id="btn-reset-ucl">🏆 RESETEAR SOLO BRACKET UCL</button>
       <button class="btn-reg" style="background:var(--surface3);color:var(--red);border:1px solid var(--red);font-size:13px" id="btn-reset">🗑 RESETEAR DATOS</button>
       <div class="ap-feedback" id="fb-settings"></div>
     </div>
@@ -931,6 +932,14 @@ document.getElementById('btn-import').addEventListener('change', ev => {
   reader.readAsText(file);
 });
 
+document.getElementById('btn-reset-ucl').addEventListener('click', () => {
+  const fb=document.getElementById('fb-settings');
+  if(!confirm('¿Resetear solo el bracket de Champions League?\n\nLos datos de ligas no se tocan.')) return;
+  state.ucl=JSON.parse(JSON.stringify(DEFAULT_UCL));
+  fillUCLMatches(); renderUCL(); persistState();
+  showFb(fb,'✓ Bracket UCL reseteado');
+});
+
 document.getElementById('btn-reset').addEventListener('click', () => {
   const fb=document.getElementById('fb-settings');
   if(!confirm('¿Resetear TODOS los datos al estado inicial?\n\nNo se puede deshacer.')) return;
@@ -977,7 +986,23 @@ document.querySelectorAll('.ap-tab').forEach(t => {
 function boot() {
   try {
     const saved=JSON.parse(localStorage.getItem('eurotracker_local')||'null');
-    if(saved&&saved.leagues&&saved.ucl){ state.leagues=saved.leagues; state.ucl=saved.ucl; }
+    if(saved&&saved.leagues&&saved.ucl){
+      state.leagues=saved.leagues;
+      // Merge UCL: conserva resultados guardados pero respeta estructura del DEFAULT
+      const rounds=['r16','qf','sf','final'];
+      rounds.forEach(r=>{
+        if(saved.ucl[r]){
+          saved.ucl[r].forEach((savedMatch,i)=>{
+            if(state.ucl[r][i]){
+              // Preservar equipos del default (pueden haber cambiado), conservar resultados guardados
+              state.ucl[r][i].leg1=savedMatch.leg1;
+              state.ucl[r][i].leg2=savedMatch.leg2;
+              if(savedMatch.pen) state.ucl[r][i].pen=savedMatch.pen;
+            }
+          });
+        }
+      });
+    }
   } catch {}
   Object.keys(state.leagues).forEach(k => {
     const md=document.getElementById('md-'+k);
