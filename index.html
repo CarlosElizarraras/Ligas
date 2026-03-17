@@ -887,6 +887,7 @@ document.getElementById('btn-ucl-reg').addEventListener('click', () => {
   } else if(penWinner==='none' || !bothLegsPlayed || a1!==a2) {
     m.pen = null;
   }
+  applyAdvancement();
   renderUCL(); persistState();
   const penMsg = m.pen ? ` · Penales: ${m.pen.score[0]}–${m.pen.score[1]} (${m.pen.winner==='home'?m.home:m.away})` : '';
   showFb(fb, `✓ ${m.home} ${hg}–${ag} ${m.away} (${leg===1?'ida':'vuelta'})${penMsg}`);
@@ -985,6 +986,31 @@ document.querySelectorAll('.ap-tab').forEach(t => {
 // ══════════════════════════════════════════════════════════
 //  BOOT
 // ══════════════════════════════════════════════════════════
+function getWinner(m) {
+  const a1=(m.leg1[0]??0)+(m.leg2[0]??0);
+  const a2=(m.leg1[1]??0)+(m.leg2[1]??0);
+  const both=m.leg1[0]!==null&&m.leg2[0]!==null;
+  if(!both) return null;
+  if(a1>a2) return m.home;
+  if(a2>a1) return m.away;
+  if(m.pen) return m.pen.winner==='home'?m.home:m.away;
+  return null;
+}
+
+function applyAdvancement() {
+  const NEXT={ro16:'qf',qf:'sf',sf:'final'};
+  ['ro16','qf','sf'].forEach(r=>{
+    const next=NEXT[r];
+    state.ucl[r].forEach((m,mi)=>{
+      const winner=getWinner(m);
+      if(winner&&state.ucl[next]&&state.ucl[next][Math.floor(mi/2)]){
+        const slot=state.ucl[next][Math.floor(mi/2)];
+        if(mi%2===0) slot.home=winner; else slot.away=winner;
+      }
+    });
+  });
+}
+
 function boot() {
   try {
     const saved=JSON.parse(localStorage.getItem('eurotracker_local')||'null');
@@ -997,6 +1023,7 @@ function boot() {
     if(md&&state.leagues[k].matchday) md.textContent='J'+state.leagues[k].matchday;
   });
   document.getElementById('loadingOverlay').classList.add('hidden');
+  applyAdvancement();
   renderAll();
 }
 boot();
