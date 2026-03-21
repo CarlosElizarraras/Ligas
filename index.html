@@ -837,7 +837,7 @@ document.getElementById('btn-league-reg').addEventListener('click', () => {
   else if(hg<ag)  { at.g++; ht.p++; }
   else            { ht.dr++; at.dr++; }
   state.leagues[key].matchday++;
-  document.getElementById('md-'+key).textContent = 'J'+state.leagues[key].matchday;
+  const _md=document.getElementById('md-'+key); if(_md) _md.textContent='J'+state.leagues[key].matchday;
   renderTable(key); persistState();
   showFb(fb, `✓ ${hName} ${hg}–${ag} ${aName}`);
   document.getElementById('al-hg').value=0;
