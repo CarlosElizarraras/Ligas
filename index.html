@@ -102,12 +102,6 @@
   .zone-clq td:first-child{box-shadow:inset 3px 0 0 #eab308;}
   .zone-rel td:first-child{box-shadow:inset 3px 0 0 var(--red);}
   .zone-play td:first-child{box-shadow:inset 3px 0 0 #a855f7;}
-  .secure-badges{display:inline-flex;gap:4px;align-items:center;margin-left:6px;flex-wrap:nowrap;vertical-align:middle;flex-shrink:0;}
-  .secure-badge{font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:700;padding:2px 5px;border-radius:4px;line-height:1;letter-spacing:.4px;white-space:nowrap;}
-  .secure-badge.champ{background:linear-gradient(90deg,#fbbf24,#d97706);color:#0c0a06;}
-  .secure-badge.ucl{background:rgba(96,165,250,.22);color:#bfdbfe;border:1px solid rgba(96,165,250,.45);}
-  .secure-badge.eur{background:rgba(249,115,22,.18);color:#fdba74;border:1px solid rgba(249,115,22,.4);}
-  .secure-badge.rel{background:rgba(239,68,68,.2);color:#fecaca;border:1px solid rgba(239,68,68,.45);}
   .edit-hint{font-size:11px;color:var(--muted);margin-top:8px;text-align:right;}
 
   .zone-legend{display:flex;flex-wrap:wrap;gap:10px 20px;margin-top:10px;padding:10px 14px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);}
@@ -228,6 +222,10 @@
     </div>
     <div class="table-wrapper"><table class="standings-table" id="table-laliga">
       <thead><tr><th style="width:28px">#</th><th>Club</th><th class="col-v">V</th><th class="col-e">E</th><th class="col-d">D</th><th class="col-gf">GF</th><th class="col-gc">GC</th><th>DIF</th><th>PTS</th></tr></thead>
+      <tbody></tbody>
+    </table></div>
+    <div class="edit-hint">✏️ Toca un equipo para editar sus stats</div>
+    <div class="zone-legend" id="legend-laliga"></div>
   </div>
 
   <div class="section" id="bundesliga">
@@ -738,27 +736,17 @@ function clinchRelegation(sorted, idx, zones, total) {
   return maxT < pts(sorted[safeIdx]);
 }
 
-function secureBadgesHtml(key, sorted, idx) {
+function secureBg(key, sorted, idx) {
   const zones = state.leagues[key].zones;
   const total = TOTAL_PJ[key];
   const behind = clinchTopCount(sorted, idx, total);
   const kUcl = maxUclDirectPos(zones);
   const kEu = maxZonePosEuro(zones);
-  const spans = [];
-  if (behind < 1) {
-    spans.push('<span class="secure-badge champ" title="Campeón matemático">🏆</span>');
-  } else {
-    if (kUcl && behind < kUcl) {
-      spans.push('<span class="secure-badge ucl" title="Clasificación a Champions League asegurada (máximos puntos posibles)">UCL ✓</span>');
-    } else if (kEu && behind < kEu) {
-      spans.push('<span class="secure-badge eur" title="Competición europea asegurada (Champions, Europa o Conference, según cupos)">EUR ✓</span>');
-    }
-  }
-  if (clinchRelegation(sorted, idx, zones, total)) {
-    spans.push('<span class="secure-badge rel" title="Descenso matemático">↓ DESC ✓</span>');
-  }
-  if (!spans.length) return '';
-  return `<span class="secure-badges">${spans.join('')}</span>`;
+  if (behind < 1)                          return 'rgba(240,180,41,0.13)';   // campeón
+  if (kUcl && behind < kUcl)              return 'rgba(96,165,250,0.10)';   // UCL
+  if (kEu  && behind < kEu)               return 'rgba(249,115,22,0.10)';   // Europa
+  if (clinchRelegation(sorted, idx, zones, total)) return 'rgba(239,68,68,0.13)'; // descenso
+  return '';
 }
 
 function zoneClass(pos, zones) {
@@ -778,9 +766,11 @@ function renderTable(key) {
   tbody.innerHTML = sorted.map((t, i) => {
     const pos = i+1, p = pts(t), d = dg(t);
     const dgStr = d>0 ? `<span class="dg-pos">+${d}</span>` : d<0 ? `<span class="dg-neg">${d}</span>` : `<span style="color:var(--muted)">0</span>`;
-    return `<tr class="${zoneClass(pos,ld.zones)}" data-league="${key}" data-team="${t.name}">
+    const bg = secureBg(key, sorted, i);
+    const bgStyle = bg ? `style="background:${bg}"` : '';
+    return `<tr class="${zoneClass(pos,ld.zones)}" ${bgStyle} data-league="${key}" data-team="${t.name}">
       <td><span class="pos-num">${pos}</span></td>
-      <td><div class="team-cell">${teamLogo(t.name,20,'team-logo')}<span class="team-name">${t.name}</span>${secureBadgesHtml(key, sorted, i)}</div></td>
+      <td><div class="team-cell">${teamLogo(t.name,16,'team-logo')}<span class="team-name">${t.name}</span></div></td>
       <td class="col-v">${t.g}</td><td class="col-e">${t.dr}</td><td class="col-d">${t.p}</td>
       <td class="col-gf">${t.gf}</td><td class="col-gc">${t.gc}</td>
       <td>${dgStr}</td><td><span class="pts">${p}</span></td>
