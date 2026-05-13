@@ -82,7 +82,8 @@
     .col-v,.col-e,.col-d,.col-gf,.col-gc{display:table-cell;}
   }
   .pos-num{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;color:var(--text2);width:24px;text-align:center;display:inline-block;}
-  .team-cell{display:flex;align-items:center;gap:8px;font-weight:500;font-size:13px;min-width:120px;}
+  .team-cell{display:flex;align-items:center;gap:8px;font-weight:500;font-size:13px;min-width:120px;flex-wrap:wrap;}
+  .team-name{min-width:0;}
   .team-emoji{font-size:15px;flex-shrink:0;line-height:1;}
   .team-logo{width:20px;height:20px;object-fit:contain;flex-shrink:0;display:block;}
   .b-logo{width:18px;height:18px;object-fit:contain;flex-shrink:0;}
@@ -92,8 +93,15 @@
   .zone-cl  td:first-child{box-shadow:inset 3px 0 0 var(--ucl-c);}
   .zone-el  td:first-child{box-shadow:inset 3px 0 0 #f97316;}
   .zone-ecl td:first-child{box-shadow:inset 3px 0 0 #84cc16;}
+  .zone-clq td:first-child{box-shadow:inset 3px 0 0 #eab308;}
   .zone-rel td:first-child{box-shadow:inset 3px 0 0 var(--red);}
   .zone-play td:first-child{box-shadow:inset 3px 0 0 #a855f7;}
+  .secure-badges{display:inline-flex;gap:4px;align-items:center;margin-left:6px;flex-wrap:wrap;vertical-align:middle;}
+  .secure-badge{font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:700;padding:2px 5px;border-radius:4px;line-height:1;letter-spacing:.4px;white-space:nowrap;}
+  .secure-badge.champ{background:linear-gradient(90deg,#fbbf24,#d97706);color:#0c0a06;}
+  .secure-badge.ucl{background:rgba(96,165,250,.22);color:#bfdbfe;border:1px solid rgba(96,165,250,.45);}
+  .secure-badge.eur{background:rgba(249,115,22,.18);color:#fdba74;border:1px solid rgba(249,115,22,.4);}
+  .secure-badge.rel{background:rgba(239,68,68,.2);color:#fecaca;border:1px solid rgba(239,68,68,.45);}
   .edit-hint{font-size:11px;color:var(--muted);margin-top:8px;text-align:right;}
 
   .zone-legend{display:flex;flex-wrap:wrap;gap:10px 20px;margin-top:10px;padding:10px 14px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);}
@@ -446,7 +454,7 @@ const FOTMOB_LOGOS = {
   'Levante':        '8581',
   'Real Oviedo':         '8670',
   // Bundesliga
-  'Bayern Müncheh':         '9823',
+  'Bayern München':         '9823',
 'Borussia Dortmund':       '9789',
 'Hoffenheim':     '8226',   // ❌ era 9796
 'Stuttgart':      '10269',  // ❌ era 9800
@@ -524,112 +532,114 @@ function teamLogo(name, size=20, cls='team-logo') {
 // ══════════════════════════════════════════════════════════
 //  DEFAULT DATA
 // ══════════════════════════════════════════════════════════
+const LEAGUES_VERSION = 2;
+
 const DEFAULT_LEAGUES = {
-  premier:{matchday:30,zones:{cl:[1,2,3,4],el:[5],ecl:[6],rel:[18,19,20]},teams:[
-    {name:'Arsenal',        e:'🔴',pj:30,g:20,dr:7, p:3, gf:59,gc:22},
-    {name:'Manchester City',       e:'🔵',pj:29,g:18,dr:6, p:5, gf:59,gc:27},
-    {name:'Manchester United',     e:'🔴',pj:29,g:14,dr:9, p:6, gf:51,gc:40},
-    {name:'Aston Villa',    e:'🟣',pj:29,g:15,dr:6, p:8, gf:39,gc:34},
-    {name:'Chelsea',        e:'🔵',pj:29,g:13,dr:9, p:7, gf:53,gc:34},
-    {name:'Liverpool',      e:'🔴',pj:29,g:14,dr:6, p:9, gf:48,gc:39},
-    {name:'Brentford',      e:'🔴',pj:29,g:13,dr:5, p:11,gf:44,gc:40},
-    {name:'Everton',        e:'🔵',pj:29,g:12,dr:7, p:10,gf:34,gc:33},
-    {name:'Bournemouth',    e:'🔴',pj:29,g:9, dr:13,p:7, gf:44,gc:46},
-    {name:'Fulham',         e:'⚫',pj:29,g:12,dr:4, p:13,gf:40,gc:43},
-    {name:'Sunderland',     e:'🔴',pj:29,g:10,dr:10,p:9, gf:30,gc:34},
-    {name:'Newcastle',      e:'⚫',pj:29,g:11,dr:6, p:12,gf:42,gc:43},
-    {name:'Crystal Palace', e:'🔴',pj:29,g:10,dr:8, p:11,gf:33,gc:35},
-    {name:'Brighton',       e:'🔵',pj:29,g:9, dr:10,p:10,gf:38,gc:36},
-    {name:'Leeds',          e:'🟡',pj:29,g:7, dr:10,p:12,gf:37,gc:48},
-    {name:'Tottenham',          e:'⚪',pj:29,g:7, dr:8, p:14,gf:39,gc:46},
-    {name:"Nottingham Forest",  e:'🔴',pj:29,g:7, dr:7, p:15,gf:28,gc:43},
-    {name:'West Ham',       e:'🔴',pj:29,g:7, dr:7, p:15,gf:35,gc:54},
-    {name:'Burnley',        e:'🔴',pj:29,g:4, dr:7, p:18,gf:32,gc:58},
-    {name:'Wolverhampton',         e:'🟡',pj:30,g:3, dr:7, p:20,gf:22,gc:52},
+  premier:{matchday:37,zones:{cl:[1,2,3,4,5],el:[6],ecl:[7],rel:[18,19,20]},teams:[
+    {name:'Arsenal',        e:'🔴',pj:36,g:24,dr:7, p:5, gf:68,gc:26},
+    {name:'Manchester City',       e:'🔵',pj:35,g:22,dr:8, p:5, gf:72,gc:32},
+    {name:'Manchester United',     e:'🔴',pj:36,g:18,dr:11,p:7, gf:63,gc:48},
+    {name:'Liverpool',      e:'🔴',pj:36,g:17,dr:8, p:11,gf:60,gc:48},
+    {name:'Aston Villa',    e:'🟣',pj:36,g:17,dr:8, p:11,gf:50,gc:46},
+    {name:'Bournemouth',    e:'🔴',pj:36,g:13,dr:16,p:7, gf:56,gc:52},
+    {name:'Brighton',       e:'🔵',pj:36,g:14,dr:11,p:11,gf:52,gc:42},
+    {name:'Brentford',      e:'🔴',pj:36,g:14,dr:9, p:13,gf:52,gc:49},
+    {name:'Chelsea',        e:'🔵',pj:36,g:13,dr:10,p:13,gf:55,gc:49},
+    {name:'Everton',        e:'🔵',pj:36,g:13,dr:10,p:13,gf:46,gc:46},
+    {name:'Fulham',         e:'⚫',pj:36,g:14,dr:6, p:16,gf:44,gc:50},
+    {name:'Sunderland',     e:'🔴',pj:36,g:12,dr:12,p:12,gf:37,gc:46},
+    {name:'Newcastle',      e:'⚫',pj:36,g:13,dr:7, p:16,gf:50,gc:52},
+    {name:'Leeds',          e:'🟡',pj:36,g:10,dr:14,p:12,gf:48,gc:53},
+    {name:'Crystal Palace', e:'🔴',pj:35,g:11,dr:11,p:13,gf:38,gc:44},
+    {name:"Nottingham Forest",  e:'🔴',pj:36,g:11,dr:10,p:15,gf:45,gc:47},
+    {name:'Tottenham',          e:'⚪',pj:36,g:9, dr:11,p:16,gf:46,gc:55},
+    {name:'West Ham',       e:'🔴',pj:36,g:9, dr:9, p:18,gf:42,gc:62},
+    {name:'Burnley',        e:'🔴',pj:36,g:4, dr:9, p:23,gf:37,gc:73},
+    {name:'Wolverhampton',         e:'🟡',pj:36,g:3, dr:9, p:24,gf:25,gc:66},
   ]},
-  laliga:{matchday:27,zones:{cl:[1,2,3,4],el:[5,6],rel:[18,19,20]},teams:[
-    {name:'Barcelona',    e:'🔵',pj:27,g:22,dr:1, p:4, gf:72,gc:26},
-    {name:'Real Madrid',  e:'⚪',pj:27,g:20,dr:3, p:4, gf:56,gc:23},
-    {name:'Atlético Madrid',     e:'🔴',pj:27,g:16,dr:6, p:5, gf:46,gc:25},
-    {name:'Villarreal',   e:'🟡',pj:27,g:17,dr:3, p:7, gf:50,gc:32},
-    {name:'Real Betis',        e:'🟢',pj:27,g:11,dr:10,p:6, gf:42,gc:34},
-    {name:'Celta Vigo',   e:'🔵',pj:27,g:10,dr:10,p:7, gf:37,gc:30},
-    {name:'Espanyol',     e:'⚪',pj:27,g:10,dr:7, p:10,gf:34,gc:40},
-    {name:'Real Sociedad',e:'🔵',pj:27,g:9, dr:8, p:10,gf:40,gc:41},
-    {name:'Getafe',       e:'🔵',pj:27,g:10,dr:5, p:12,gf:23,gc:29},
-    {name:'Athletic Club',     e:'🔴',pj:27,g:10,dr:5, p:12,gf:30,gc:37},
-    {name:'Osasuna',      e:'🔴',pj:27,g:9, dr:7, p:11,gf:32,gc:32},
-    {name:'Valencia',     e:'🟠',pj:27,g:8, dr:8, p:11,gf:30,gc:41},
-    {name:'Rayo Vallecano',         e:'⚪',pj:27,g:7, dr:10,p:10,gf:27,gc:33},
-    {name:'Sevilla',      e:'⚪',pj:27,g:8, dr:7, p:12,gf:35,gc:42},
-    {name:'Girona',       e:'🔴',pj:27,g:7, dr:10,p:10,gf:28,gc:43},
-    {name:'Alavés',       e:'🔵',pj:27,g:7, dr:6, p:14,gf:25,gc:37},
-    {name:'Elche',        e:'🟢',pj:27,g:5, dr:11,p:11,gf:35,gc:41},
-    {name:'Mallorca',     e:'🔴',pj:27,g:6, dr:7, p:14,gf:31,gc:44},
-    {name:'Levante',      e:'🔵',pj:27,g:5, dr:7, p:15,gf:29,gc:45},
-    {name:'Real Oviedo',       e:'🔵',pj:27,g:3, dr:9, p:15,gf:17,gc:44},
+  laliga:{matchday:36,zones:{cl:[1,2,3,4,5],el:[6],ecl:[7],rel:[18,19,20]},teams:[
+    {name:'Barcelona',    e:'🔵',pj:35,g:30,dr:1, p:4, gf:91,gc:31},
+    {name:'Real Madrid',  e:'⚪',pj:35,g:24,dr:5, p:6, gf:70,gc:33},
+    {name:'Villarreal',   e:'🟡',pj:36,g:21,dr:7, p:8, gf:67,gc:42},
+    {name:'Atlético Madrid',     e:'🔴',pj:36,g:20,dr:6, p:10,gf:60,gc:39},
+    {name:'Real Betis',        e:'🟢',pj:36,g:14,dr:15,p:7, gf:56,gc:44},
+    {name:'Celta Vigo',   e:'🔵',pj:36,g:13,dr:11,p:12,gf:51,gc:47},
+    {name:'Getafe',       e:'🔵',pj:35,g:13,dr:6, p:16,gf:28,gc:36},
+    {name:'Athletic Club',     e:'🔴',pj:36,g:13,dr:6, p:17,gf:40,gc:51},
+    {name:'Real Sociedad',e:'🔵',pj:35,g:11,dr:11,p:13,gf:54,gc:55},
+    {name:'Rayo Vallecano',         e:'⚪',pj:35,g:10,dr:13,p:12,gf:36,gc:42},
+    {name:'Osasuna',      e:'🔴',pj:36,g:11,dr:9, p:16,gf:43,gc:47},
+    {name:'Valencia',     e:'🟠',pj:35,g:11,dr:9, p:15,gf:38,gc:50},
+    {name:'Sevilla',      e:'⚪',pj:36,g:11,dr:8, p:17,gf:45,gc:58},
+    {name:'Espanyol',     e:'⚪',pj:36,g:10,dr:10,p:16,gf:38,gc:53},
+    {name:'Elche',        e:'🟢',pj:36,g:9, dr:12,p:15,gf:47,gc:56},
+    {name:'Mallorca',     e:'🔴',pj:35,g:10,dr:9, p:16,gf:43,gc:52},
+    {name:'Levante',      e:'🔵',pj:36,g:10,dr:9, p:17,gf:44,gc:59},
+    {name:'Girona',       e:'🔴',pj:35,g:9, dr:12,p:14,gf:37,gc:52},
+    {name:'Alavés',       e:'🔵',pj:35,g:9, dr:10,p:16,gf:41,gc:54},
+    {name:'Real Oviedo',       e:'🔵',pj:35,g:6, dr:11,p:18,gf:26,gc:54},
   ]},
-  bundesliga:{matchday:25,zones:{cl:[1,2,3,4],el:[5],ecl:[6],play:[16],rel:[17,18]},teams:[
-    {name:'Bayern München',       e:'🔴',pj:25,g:21,dr:3, p:1, gf:92,gc:24},
-    {name:'Borussia Dortmund',     e:'🟡',pj:25,g:16,dr:7, p:2, gf:53,gc:26},
-    {name:'Hoffenheim',   e:'🔵',pj:25,g:15,dr:4, p:6, gf:53,gc:33},
-    {name:'Stuttgart',    e:'🔴',pj:25,g:14,dr:5, p:6, gf:50,gc:34},
-    {name:'RB Leipzig',   e:'🔴',pj:25,g:14,dr:5, p:6, gf:48,gc:34},
-    {name:'Bayer Leverkusen',   e:'🔴',pj:25,g:13,dr:5, p:7, gf:48,gc:32},
-    {name:'Eintracht Frankfurt',    e:'🔴',pj:25,g:9, dr:8, p:8, gf:48,gc:49},
-    {name:'Freiburg',     e:'⚫',pj:25,g:9, dr:7, p:9, gf:37,gc:42},
-    {name:'Augsburg',     e:'🔴',pj:25,g:9, dr:4, p:12,gf:31,gc:43},
-    {name:'Hamburger',     e:'🔵',pj:25,g:7, dr:8, p:10,gf:28,gc:36},
-    {name:'Union Berlin', e:'🔴',pj:25,g:7, dr:7, p:11,gf:30,gc:42},
-    {name:'M`Gladbach',     e:'🟢',pj:26,g:7, dr:7, p:12,gf:30,gc:43},
-    {name:'Werder Bremen',e:'🟢',pj:25,g:6, dr:7, p:12,gf:29,gc:45},
-    {name:'Köln',      e:'⚪',pj:25,g:6, dr:6, p:13,gf:34,gc:43},
-    {name:'Mainz 05',     e:'🔴',pj:25,g:5, dr:9, p:11,gf:29,gc:41},
-    {name:'St. Pauli',    e:'⚫',pj:26,g:6, dr:6, p:14,gf:23,gc:42},
-    {name:'Wolfsburg',    e:'🟢',pj:25,g:5, dr:5, p:15,gf:34,gc:55},
-    {name:'Heidenheim',   e:'🔴',pj:25,g:3, dr:5, p:17,gf:24,gc:57},
+  bundesliga:{matchday:34,zones:{cl:[1,2,3,4],el:[5,6],ecl:[7],play:[16],rel:[17,18]},teams:[
+    {name:'Bayern München',       e:'🔴',pj:33,g:27,dr:5, p:1, gf:117,gc:35},
+    {name:'Borussia Dortmund',     e:'🟡',pj:33,g:21,dr:7, p:5, gf:68,gc:34},
+    {name:'RB Leipzig',   e:'🔴',pj:33,g:20,dr:5, p:8, gf:65,gc:43},
+    {name:'Stuttgart',    e:'🔴',pj:33,g:18,dr:7, p:8, gf:69,gc:47},
+    {name:'Hoffenheim',   e:'🔵',pj:33,g:18,dr:7, p:8, gf:65,gc:48},
+    {name:'Bayer Leverkusen',   e:'🔴',pj:33,g:17,dr:7, p:9, gf:67,gc:46},
+    {name:'Freiburg',     e:'⚫',pj:33,g:12,dr:8, p:13,gf:47,gc:56},
+    {name:'Eintracht Frankfurt',    e:'🔴',pj:33,g:11,dr:10,p:12,gf:59,gc:63},
+    {name:'Augsburg',     e:'🔴',pj:33,g:12,dr:7, p:14,gf:45,gc:57},
+    {name:'Mainz 05',     e:'🔴',pj:33,g:9, dr:10,p:14,gf:42,gc:53},
+    {name:'Hamburger',     e:'🔵',pj:33,g:9, dr:10,p:14,gf:39,gc:53},
+    {name:'Union Berlin', e:'🔴',pj:33,g:9, dr:9, p:15,gf:40,gc:58},
+    {name:'M`Gladbach',     e:'🟢',pj:33,g:8, dr:11,p:14,gf:38,gc:53},
+    {name:'Köln',      e:'⚪',pj:33,g:7, dr:11,p:15,gf:48,gc:58},
+    {name:'Werder Bremen',e:'🟢',pj:33,g:8, dr:8, p:17,gf:37,gc:58},
+    {name:'Wolfsburg',    e:'🟢',pj:33,g:6, dr:8, p:19,gf:42,gc:68},
+    {name:'Heidenheim',   e:'🔴',pj:33,g:6, dr:8, p:19,gf:41,gc:70},
+    {name:'St. Pauli',    e:'⚫',pj:33,g:6, dr:8, p:19,gf:28,gc:57},
   ]},
-  seriea:{matchday:28,zones:{cl:[1,2,3,4],el:[5,6],ecl:[7],rel:[18,19,20]},teams:[
-    {name:'Inter Milan',        e:'⚫',pj:28,g:22,dr:1, p:5, gf:64,gc:22},
-    {name:'AC Milan',     e:'🔴',pj:28,g:17,dr:9, p:2, gf:44,gc:20},
-    {name:'Napoli',       e:'🔵',pj:28,g:17,dr:5, p:6, gf:43,gc:29},
-    {name:'Como',         e:'🔵',pj:28,g:14,dr:9, p:5, gf:46,gc:21},
-    {name:'Roma',         e:'🟡',pj:28,g:16,dr:3, p:9, gf:38,gc:21},
-    {name:'Juventus',     e:'⚫',pj:28,g:14,dr:8, p:6, gf:50,gc:28},
-    {name:'Atalanta',     e:'🔵',pj:28,g:12,dr:10,p:6, gf:39,gc:26},
-    {name:'Bologna',      e:'🔴',pj:28,g:11,dr:6, p:11,gf:37,gc:34},
-    {name:'Sassuolo',     e:'🟢',pj:28,g:11,dr:5, p:12,gf:35,gc:38},
-    {name:'Lazio',        e:'🔵',pj:28,g:9, dr:10,p:9, gf:28,gc:28},
-    {name:'Udinese',      e:'⚫',pj:28,g:10,dr:6, p:12,gf:33,gc:41},
-    {name:'Parma',        e:'🟡',pj:29,g:8, dr:10,p:11,gf:21,gc:36},
-    {name:'Torino',       e:'🔴',pj:29,g:9, dr:6, p:14,gf:32,gc:50},
-    {name:'Genoa',        e:'🔴',pj:28,g:7, dr:9, p:12,gf:34,gc:40},
-    {name:'Cagliari',     e:'🔴',pj:28,g:7, dr:9, p:12,gf:30,gc:38},
-    {name:'Lecce',        e:'🟡',pj:28,g:7, dr:6, p:15,gf:20,gc:37},
-    {name:'Fiorentina',   e:'🟣',pj:28,g:5, dr:10,p:13,gf:30,gc:42},
-    {name:'Cremonese',    e:'🔴',pj:28,g:5, dr:9, p:14,gf:22,gc:40},
-    {name:'Hellas Verona',e:'🟡',pj:28,g:3, dr:9, p:16,gf:22,gc:49},
-    {name:'Pisa',         e:'🔵',pj:28,g:1, dr:12,p:15,gf:20,gc:48},
+  seriea:{matchday:37,zones:{cl:[1,2,3,4],el:[5],ecl:[6],rel:[18,19,20]},teams:[
+    {name:'Inter Milan',        e:'⚫',pj:36,g:27,dr:4, p:5, gf:85,gc:31},
+    {name:'Napoli',       e:'🔵',pj:36,g:21,dr:7, p:8, gf:54,gc:36},
+    {name:'Juventus',     e:'⚫',pj:36,g:19,dr:11,p:6, gf:59,gc:30},
+    {name:'AC Milan',     e:'🔴',pj:36,g:19,dr:10,p:7, gf:50,gc:32},
+    {name:'Roma',         e:'🟡',pj:36,g:21,dr:4, p:11,gf:55,gc:31},
+    {name:'Como',         e:'🔵',pj:36,g:18,dr:11,p:7, gf:60,gc:28},
+    {name:'Atalanta',     e:'🔵',pj:36,g:15,dr:13,p:8, gf:50,gc:34},
+    {name:'Bologna',      e:'🔴',pj:36,g:15,dr:7, p:14,gf:45,gc:43},
+    {name:'Lazio',        e:'🔵',pj:36,g:13,dr:12,p:11,gf:39,gc:37},
+    {name:'Udinese',      e:'⚫',pj:36,g:14,dr:8, p:14,gf:45,gc:46},
+    {name:'Sassuolo',     e:'🟢',pj:36,g:14,dr:7, p:15,gf:44,gc:46},
+    {name:'Torino',       e:'🔴',pj:36,g:12,dr:8, p:16,gf:41,gc:59},
+    {name:'Parma',        e:'🟡',pj:36,g:10,dr:12,p:14,gf:27,gc:45},
+    {name:'Genoa',        e:'🔴',pj:36,g:10,dr:11,p:15,gf:40,gc:48},
+    {name:'Fiorentina',   e:'🟣',pj:36,g:8, dr:14,p:14,gf:38,gc:49},
+    {name:'Cagliari',     e:'🔴',pj:36,g:9, dr:10,p:17,gf:36,gc:51},
+    {name:'Lecce',        e:'🟡',pj:36,g:8, dr:8, p:20,gf:24,gc:48},
+    {name:'Cremonese',    e:'🔴',pj:36,g:7, dr:10,p:19,gf:30,gc:53},
+    {name:'Hellas Verona',e:'🟡',pj:36,g:3, dr:11,p:22,gf:24,gc:58},
+    {name:'Pisa',         e:'🔵',pj:36,g:2, dr:12,p:22,gf:25,gc:66},
   ]},
-  ligue1:{matchday:25,zones:{cl:[1,2,3],el:[4,5],ecl:[6],play:[16],rel:[17,18]},teams:[
-    {name:'PSG',       e:'🔵',pj:25,g:18,dr:3, p:4, gf:54,gc:22},
-    {name:'Lens',      e:'🟡',pj:25,g:18,dr:2, p:5, gf:48,gc:21},
-    {name:'Marseille', e:'🔵',pj:26,g:15,dr:4, p:7, gf:53,gc:33},
-    {name:'Lyon',      e:'🔴',pj:25,g:14,dr:4, p:7, gf:40,gc:27},
-    {name:'Rennes',    e:'🔴',pj:25,g:12,dr:7, p:6, gf:42,gc:35},
-    {name:'Lille',     e:'🔴',pj:25,g:12,dr:5, p:8, gf:38,gc:32},
-    {name:'Monaco',    e:'🔴',pj:25,g:12,dr:4, p:9, gf:43,gc:37},
-    {name:'Strasbourg',e:'🔵',pj:25,g:10,dr:6, p:9, gf:40,gc:31},
-    {name:'Brest',     e:'⚪',pj:25,g:10,dr:6, p:9, gf:34,gc:34},
-    {name:'Lorient',   e:'🟠',pj:25,g:8, dr:10,p:7, gf:35,gc:39},
-    {name:'Angers',    e:'⚫',pj:25,g:9, dr:5, p:11,gf:23,gc:30},
-    {name:'Toulouse',  e:'🟣',pj:25,g:8, dr:7, p:10,gf:33,gc:29},
-    {name:'Paris',  e:'🔵',pj:25,g:6, dr:9, p:10,gf:29,gc:41},
-    {name:'Le Havre',  e:'🔵',pj:25,g:6, dr:8, p:11,gf:20,gc:32},
-    {name:'Nice',      e:'🔴',pj:25,g:6, dr:6, p:13,gf:30,gc:48},
-    {name:'Auxerre',   e:'⚪',pj:26,g:4, dr:7, p:15,gf:19,gc:36},
-    {name:'Nantes',    e:'🟡',pj:25,g:4, dr:5, p:16,gf:22,gc:42},
-    {name:'Metz',      e:'🔴',pj:25,g:3, dr:4, p:18,gf:22,gc:56},
+  ligue1:{matchday:33,zones:{cl:[1,2,3],clq:[4],el:[5],ecl:[6],play:[16],rel:[17,18]},teams:[
+    {name:'PSG',       e:'🔵',pj:32,g:23,dr:4, p:5, gf:71,gc:27},
+    {name:'Lens',      e:'🟡',pj:32,g:21,dr:4, p:7, gf:62,gc:33},
+    {name:'Lille',     e:'🔴',pj:33,g:18,dr:7, p:8, gf:52,gc:35},
+    {name:'Lyon',      e:'🔴',pj:33,g:18,dr:6, p:9, gf:53,gc:36},
+    {name:'Rennes',    e:'🔴',pj:33,g:17,dr:8, p:8, gf:58,gc:47},
+    {name:'Marseille', e:'🔵',pj:33,g:17,dr:5, p:11,gf:60,gc:44},
+    {name:'Monaco',    e:'🔴',pj:33,g:16,dr:6, p:11,gf:56,gc:49},
+    {name:'Strasbourg',e:'🔵',pj:33,g:14,dr:8, p:11,gf:53,gc:43},
+    {name:'Lorient',   e:'🟠',pj:33,g:11,dr:12,p:10,gf:48,gc:49},
+    {name:'Toulouse',  e:'🟣',pj:33,g:12,dr:8, p:13,gf:47,gc:46},
+    {name:'Paris',  e:'🔵',pj:33,g:10,dr:11,p:12,gf:45,gc:49},
+    {name:'Brest',     e:'⚪',pj:33,g:10,dr:8, p:15,gf:42,gc:54},
+    {name:'Angers',    e:'⚫',pj:33,g:9, dr:8, p:16,gf:28,gc:47},
+    {name:'Le Havre',  e:'🔵',pj:33,g:6, dr:14,p:13,gf:30,gc:44},
+    {name:'Auxerre',   e:'⚪',pj:33,g:7, dr:10,p:16,gf:32,gc:44},
+    {name:'Nice',      e:'🔴',pj:33,g:7, dr:10,p:16,gf:37,gc:60},
+    {name:'Nantes',    e:'🟡',pj:33,g:5, dr:8, p:20,gf:29,gc:52},
+    {name:'Metz',      e:'🔴',pj:33,g:3, dr:7, p:23,gf:32,gc:76},
   ]}
 };
 
@@ -661,7 +671,12 @@ let state = {
 let editCtx = { league: null, teamName: null };
 
 function persistState() {
-  localStorage.setItem('eurotracker_local', JSON.stringify({...state, uclVersion: UCL_VERSION}));
+  localStorage.setItem('eurotracker_local', JSON.stringify({
+    leagues: state.leagues,
+    ucl: state.ucl,
+    leaguesVersion: LEAGUES_VERSION,
+    uclVersion: UCL_VERSION
+  }));
 }
 function showFb(el, msg, isErr=false) {
   el.textContent = msg;
@@ -683,8 +698,70 @@ function sortedTeams(teams) {
   });
 }
 
+const TOTAL_PJ = { premier:38, laliga:38, bundesliga:34, seriea:38, ligue1:34 };
+
+function clinchTopCount(sorted, idx, total) {
+  const minT = pts(sorted[idx]);
+  let c = 0;
+  for (let j = 0; j < sorted.length; j++) {
+    if (j === idx) continue;
+    const maxU = pts(sorted[j]) + 3 * (total - sorted[j].pj);
+    if (maxU > minT) c++;
+  }
+  return c;
+}
+
+function maxZonePosEuro(zones) {
+  const ar = [];
+  if (zones.cl) ar.push(...zones.cl);
+  if (zones.clq) ar.push(...zones.clq);
+  if (zones.el) ar.push(...zones.el);
+  if (zones.ecl) ar.push(...zones.ecl);
+  return ar.length ? Math.max(...ar) : 0;
+}
+
+function maxUclDirectPos(zones) {
+  if (!zones.cl || !zones.cl.length) return 0;
+  return Math.max(...zones.cl);
+}
+
+function clinchRelegation(sorted, idx, zones, total) {
+  const relSlots = zones.rel ? zones.rel.length : 0;
+  if (!relSlots) return false;
+  const n = sorted.length;
+  const safeIdx = n - relSlots - 1;
+  if (safeIdx < 0 || safeIdx >= n) return false;
+  const t = sorted[idx];
+  const maxT = pts(t) + 3 * (total - t.pj);
+  return maxT < sorted[safeIdx].pts;
+}
+
+function secureBadgesHtml(key, sorted, idx) {
+  const zones = state.leagues[key].zones;
+  const total = TOTAL_PJ[key];
+  const behind = clinchTopCount(sorted, idx, total);
+  const kUcl = maxUclDirectPos(zones);
+  const kEu = maxZonePosEuro(zones);
+  const spans = [];
+  if (behind < 1) {
+    spans.push('<span class="secure-badge champ" title="Campeón matemático">🏆</span>');
+  } else {
+    if (kUcl && behind < kUcl) {
+      spans.push('<span class="secure-badge ucl" title="Clasificación a Champions League asegurada (máximos puntos posibles)">UCL ✓</span>');
+    } else if (kEu && behind < kEu) {
+      spans.push('<span class="secure-badge eur" title="Competición europea asegurada (Champions, Europa o Conference, según cupos)">EUR ✓</span>');
+    }
+  }
+  if (clinchRelegation(sorted, idx, zones, total)) {
+    spans.push('<span class="secure-badge rel" title="Descenso matemático">↓ DESC ✓</span>');
+  }
+  if (!spans.length) return '';
+  return `<span class="secure-badges">${spans.join('')}</span>`;
+}
+
 function zoneClass(pos, zones) {
   if(zones.cl?.includes(pos))   return 'zone-cl';
+  if(zones.clq?.includes(pos))  return 'zone-clq';
   if(zones.el?.includes(pos))   return 'zone-el';
   if(zones.ecl?.includes(pos))  return 'zone-ecl';
   if(zones.play?.includes(pos)) return 'zone-play';
@@ -701,7 +778,7 @@ function renderTable(key) {
     const dgStr = d>0 ? `<span class="dg-pos">+${d}</span>` : d<0 ? `<span class="dg-neg">${d}</span>` : `<span style="color:var(--muted)">0</span>`;
     return `<tr class="${zoneClass(pos,ld.zones)}" data-league="${key}" data-team="${t.name}">
       <td><span class="pos-num">${pos}</span></td>
-      <td><div class="team-cell">${teamLogo(t.name,20,'team-logo')}${t.name}</div></td>
+      <td><div class="team-cell">${teamLogo(t.name,20,'team-logo')}<span class="team-name">${t.name}</span>${secureBadgesHtml(key, sorted, i)}</div></td>
       <td>${t.pj}</td><td class="col-v">${t.g}</td><td class="col-e">${t.dr}</td><td class="col-d">${t.p}</td>
       <td class="col-gf">${t.gf}</td><td class="col-gc">${t.gc}</td>
       <td>${dgStr}</td><td><span class="pts">${p}</span></td>
@@ -713,6 +790,7 @@ function renderTable(key) {
   const lg = document.getElementById('legend-'+key);
   const items = [];
   if(ld.zones.cl)   items.push(`<div class="legend-item"><div class="ld" style="background:var(--ucl-c)"></div>Champions</div>`);
+  if(ld.zones.clq)  items.push(`<div class="legend-item"><div class="ld" style="background:#eab308"></div>Clasif. Champions</div>`);
   if(ld.zones.el)   items.push(`<div class="legend-item"><div class="ld" style="background:#f97316"></div>Europa League</div>`);
   if(ld.zones.ecl)  items.push(`<div class="legend-item"><div class="ld" style="background:#84cc16"></div>Conference</div>`);
   if(ld.zones.play) items.push(`<div class="legend-item"><div class="ld" style="background:#a855f7"></div>Playoff</div>`);
@@ -896,7 +974,7 @@ document.getElementById('btn-ucl-reg').addEventListener('click', () => {
 document.getElementById('btn-export').addEventListener('click', () => {
   const fb=document.getElementById('fb-settings');
   try {
-    const blob=new Blob([JSON.stringify({version:1,exportedAt:new Date().toISOString(),data:state},null,2)],{type:'application/json'});
+    const blob=new Blob([JSON.stringify({version:1,exportedAt:new Date().toISOString(),data:{...state,leaguesVersion:LEAGUES_VERSION,uclVersion:UCL_VERSION}},null,2)],{type:'application/json'});
     const a=document.createElement('a');
     a.href=URL.createObjectURL(blob);
     a.download=`eurotracker_${new Date().toISOString().slice(0,10)}.json`;
@@ -1005,11 +1083,18 @@ function applyAdvancement() {
 }
 
 function boot() {
+  let saved = null;
   try {
-    const saved=JSON.parse(localStorage.getItem('eurotracker_local')||'null');
-    if(saved&&saved.leagues) state.leagues=saved.leagues;
+    saved = JSON.parse(localStorage.getItem('eurotracker_local')||'null');
+    if (saved && saved.leagues) {
+      if (saved.leaguesVersion != null && saved.leaguesVersion >= LEAGUES_VERSION) {
+        state.leagues = saved.leagues;
+      } else {
+        state.leagues = JSON.parse(JSON.stringify(DEFAULT_LEAGUES));
+      }
+    }
     // Solo cargar UCL guardado si es de la misma versión; si no, usar DEFAULT actualizado
-    if(saved&&saved.ucl&&saved.uclVersion===UCL_VERSION) state.ucl=saved.ucl;
+    if (saved && saved.ucl && saved.uclVersion === UCL_VERSION) state.ucl = saved.ucl;
   } catch {}
   Object.keys(state.leagues).forEach(k => {
     const md=document.getElementById('md-'+k);
@@ -1018,6 +1103,7 @@ function boot() {
   document.getElementById('loadingOverlay').classList.add('hidden');
   applyAdvancement();
   renderAll();
+  persistState();
 }
 boot();
 </script>
