@@ -85,8 +85,8 @@
     .standings-table tbody td{padding:8px 10px;font-size:13px;}
   }
   .pos-num{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;color:var(--text2);width:24px;text-align:center;display:inline-block;}
-  .team-cell{display:flex;align-items:center;gap:8px;font-weight:500;font-size:13px;min-width:120px;flex-wrap:wrap;}
-  .team-name{min-width:0;}
+  .team-cell{display:flex;align-items:center;gap:8px;font-weight:500;font-size:13px;min-width:120px;flex-wrap:nowrap;overflow:hidden;}
+  .team-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
   .team-emoji{font-size:15px;flex-shrink:0;line-height:1;}
   .team-logo{width:20px;height:20px;object-fit:contain;flex-shrink:0;display:block;}
   .b-logo{width:18px;height:18px;object-fit:contain;flex-shrink:0;}
@@ -99,7 +99,7 @@
   .zone-clq td:first-child{box-shadow:inset 3px 0 0 #eab308;}
   .zone-rel td:first-child{box-shadow:inset 3px 0 0 var(--red);}
   .zone-play td:first-child{box-shadow:inset 3px 0 0 #a855f7;}
-  .secure-badges{display:inline-flex;gap:4px;align-items:center;margin-left:6px;flex-wrap:wrap;vertical-align:middle;}
+  .secure-badges{display:inline-flex;gap:4px;align-items:center;margin-left:6px;flex-wrap:nowrap;vertical-align:middle;flex-shrink:0;}
   .secure-badge{font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:700;padding:2px 5px;border-radius:4px;line-height:1;letter-spacing:.4px;white-space:nowrap;}
   .secure-badge.champ{background:linear-gradient(90deg,#fbbf24,#d97706);color:#0c0a06;}
   .secure-badge.ucl{background:rgba(96,165,250,.22);color:#bfdbfe;border:1px solid rgba(96,165,250,.45);}
