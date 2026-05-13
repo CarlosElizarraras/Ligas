@@ -59,43 +59,41 @@
 
   .table-wrapper{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:10px;border:1px solid var(--border);}
   .standings-table{width:100%;border-collapse:collapse;min-width:0;table-layout:fixed;}
-  .standings-table th:nth-child(1){width:34px;}
+  .standings-table th:nth-child(1){width:28px;}
   .standings-table th:nth-child(2){width:auto;}
   .standings-table th:nth-child(3),.standings-table th:nth-child(4),
   .standings-table th:nth-child(5),.standings-table th:nth-child(6),
-  .standings-table th:nth-child(7),.standings-table th:nth-child(8),
-  .standings-table th:nth-child(9){width:36px;}
-  .standings-table th:nth-child(10){width:42px;}
-  .standings-table thead tr{background:var(--surface2);border-bottom:1px solid var(--border);}
-  .standings-table thead th{padding:9px 10px;text-align:center;font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);white-space:nowrap;}
+  .standings-table th:nth-child(7),.standings-table th:nth-child(8){width:30px;}
+  .standings-table th:nth-child(9){width:38px;}
+  .standings-table thead th{padding:9px 6px;text-align:center;font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);white-space:nowrap;}
   .standings-table thead th:nth-child(1),.standings-table thead th:nth-child(2){text-align:left;}
   .standings-table tbody tr{transition:background .15s;background:var(--surface);cursor:pointer;}
   .standings-table tbody tr:nth-child(even){background:var(--surface2);}
   .standings-table tbody tr:hover{background:rgba(255,255,255,0.05);}
   .standings-table tbody tr:last-child td{border-bottom:none;}
-  .standings-table tbody td{padding:8px 10px;text-align:center;border-bottom:1px solid rgba(255,255,255,.03);font-size:13px;white-space:nowrap;}
+  .standings-table tbody td{padding:7px 6px;text-align:center;border-bottom:1px solid rgba(255,255,255,.03);font-size:11px;white-space:nowrap;}
   .standings-table tbody td:nth-child(2){text-align:left;}
-  /* Portrait: mostrar PJ, V, E, D, DIF y PTS */
+  /* Portrait: ocultar GF y GC */
   @media (orientation:portrait) {
     .col-gf,.col-gc{display:none;}
     .col-v,.col-e,.col-d{display:table-cell;}
-    .team-cell{min-width:0;font-size:12px;}
-    .standings-table thead th{padding:8px 4px;font-size:9px;}
-    .standings-table tbody td{padding:7px 4px;font-size:12px;}
+    .team-cell{font-size:11px;}
+    .standings-table thead th{padding:7px 4px;font-size:9px;}
+    .standings-table tbody td{padding:6px 4px;font-size:11px;}
   }
   /* Landscape o pantalla ancha: todo visible */
   @media (orientation:landscape),(min-width:600px) {
     .col-v,.col-e,.col-d,.col-gf,.col-gc{display:table-cell;}
-    .standings-table thead th{padding:9px 10px;font-size:10px;}
-    .standings-table tbody td{padding:8px 10px;font-size:13px;}
+    .standings-table thead th{padding:9px 6px;font-size:10px;}
+    .standings-table tbody td{padding:7px 6px;font-size:11px;}
   }
-  .pos-num{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;color:var(--text2);width:24px;text-align:center;display:inline-block;}
-  .team-cell{display:flex;align-items:center;gap:8px;font-weight:500;font-size:13px;flex-wrap:nowrap;overflow:hidden;}
+  .pos-num{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;color:var(--text2);width:22px;text-align:center;display:inline-block;}
+  .team-cell{display:flex;align-items:center;gap:6px;font-weight:500;font-size:11px;flex-wrap:nowrap;overflow:hidden;}
   .team-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-  .team-emoji{font-size:15px;flex-shrink:0;line-height:1;}
-  .team-logo{width:20px;height:20px;object-fit:contain;flex-shrink:0;display:block;}
+  .team-emoji{font-size:13px;flex-shrink:0;line-height:1;}
+  .team-logo{width:16px;height:16px;object-fit:contain;flex-shrink:0;display:block;}
   .b-logo{width:18px;height:18px;object-fit:contain;flex-shrink:0;}
-  .pts{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;color:var(--text);}
+  .pts{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;color:var(--text);}
   .dg-pos{color:var(--green);}
   .dg-neg{color:var(--red);}
   .zone-cl  td:first-child{box-shadow:inset 3px 0 0 var(--ucl-c);}
@@ -216,7 +214,7 @@
       <div class="league-badge" style="background:#2d0a47">🏴󠁧󠁢󠁥󠁮󠁧󠁿</div>
       <div><div class="league-title" style="color:var(--premier-c)">Premier League</div><div class="league-season">2025/26 · Inglaterra</div></div></div>
     <div class="table-wrapper"><table class="standings-table" id="table-premier">
-      <thead><tr><th style="width:30px">#</th><th>Club</th><th>PJ</th><th class="col-v">V</th><th class="col-e">E</th><th class="col-d">D</th><th class="col-gf">GF</th><th class="col-gc">GC</th><th>DIF</th><th>PTS</th></tr></thead>
+      <thead><tr><th style="width:28px">#</th><th>Club</th><th class="col-v">V</th><th class="col-e">E</th><th class="col-d">D</th><th class="col-gf">GF</th><th class="col-gc">GC</th><th>DIF</th><th>PTS</th></tr></thead>
       <tbody></tbody>
     </table></div>
     <div class="edit-hint">✏️ Toca un equipo para editar sus stats</div>
@@ -229,11 +227,7 @@
       <div><div class="league-title" style="color:var(--laliga-c)">La Liga</div><div class="league-season">2025/26 · España</div></div>
     </div>
     <div class="table-wrapper"><table class="standings-table" id="table-laliga">
-      <thead><tr><th style="width:30px">#</th><th>Club</th><th>PJ</th><th class="col-v">V</th><th class="col-e">E</th><th class="col-d">D</th><th class="col-gf">GF</th><th class="col-gc">GC</th><th>DIF</th><th>PTS</th></tr></thead>
-      <tbody></tbody>
-    </table></div>
-    <div class="edit-hint">✏️ Toca un equipo para editar sus stats</div>
-    <div class="zone-legend" id="legend-laliga"></div>
+      <thead><tr><th style="width:28px">#</th><th>Club</th><th class="col-v">V</th><th class="col-e">E</th><th class="col-d">D</th><th class="col-gf">GF</th><th class="col-gc">GC</th><th>DIF</th><th>PTS</th></tr></thead>
   </div>
 
   <div class="section" id="bundesliga">
@@ -242,7 +236,7 @@
       <div><div class="league-title" style="color:var(--bundesliga-c)">Bundesliga</div><div class="league-season">2025/26 · Alemania</div></div>
     </div>
     <div class="table-wrapper"><table class="standings-table" id="table-bundesliga">
-      <thead><tr><th style="width:30px">#</th><th>Club</th><th>PJ</th><th class="col-v">V</th><th class="col-e">E</th><th class="col-d">D</th><th class="col-gf">GF</th><th class="col-gc">GC</th><th>DIF</th><th>PTS</th></tr></thead>
+      <thead><tr><th style="width:28px">#</th><th>Club</th><th class="col-v">V</th><th class="col-e">E</th><th class="col-d">D</th><th class="col-gf">GF</th><th class="col-gc">GC</th><th>DIF</th><th>PTS</th></tr></thead>
       <tbody></tbody>
     </table></div>
     <div class="edit-hint">✏️ Toca un equipo para editar sus stats</div>
@@ -255,7 +249,7 @@
       <div><div class="league-title" style="color:var(--seriea-c)">Serie A</div><div class="league-season">2025/26 · Italia</div></div>
     </div>
     <div class="table-wrapper"><table class="standings-table" id="table-seriea">
-      <thead><tr><th style="width:30px">#</th><th>Club</th><th>PJ</th><th class="col-v">V</th><th class="col-e">E</th><th class="col-d">D</th><th class="col-gf">GF</th><th class="col-gc">GC</th><th>DIF</th><th>PTS</th></tr></thead>
+      <thead><tr><th style="width:28px">#</th><th>Club</th><th class="col-v">V</th><th class="col-e">E</th><th class="col-d">D</th><th class="col-gf">GF</th><th class="col-gc">GC</th><th>DIF</th><th>PTS</th></tr></thead>
       <tbody></tbody>
     </table></div>
     <div class="edit-hint">✏️ Toca un equipo para editar sus stats</div>
@@ -268,7 +262,7 @@
       <div><div class="league-title" style="color:var(--ligue1-c)">Ligue 1</div><div class="league-season">2025/26 · Francia</div></div>
     </div>
     <div class="table-wrapper"><table class="standings-table" id="table-ligue1">
-      <thead><tr><th style="width:30px">#</th><th>Club</th><th>PJ</th><th class="col-v">V</th><th class="col-e">E</th><th class="col-d">D</th><th class="col-gf">GF</th><th class="col-gc">GC</th><th>DIF</th><th>PTS</th></tr></thead>
+      <thead><tr><th style="width:28px">#</th><th>Club</th><th class="col-v">V</th><th class="col-e">E</th><th class="col-d">D</th><th class="col-gf">GF</th><th class="col-gc">GC</th><th>DIF</th><th>PTS</th></tr></thead>
       <tbody></tbody>
     </table></div>
     <div class="edit-hint">✏️ Toca un equipo para editar sus stats</div>
@@ -787,7 +781,7 @@ function renderTable(key) {
     return `<tr class="${zoneClass(pos,ld.zones)}" data-league="${key}" data-team="${t.name}">
       <td><span class="pos-num">${pos}</span></td>
       <td><div class="team-cell">${teamLogo(t.name,20,'team-logo')}<span class="team-name">${t.name}</span>${secureBadgesHtml(key, sorted, i)}</div></td>
-      <td>${t.pj}</td><td class="col-v">${t.g}</td><td class="col-e">${t.dr}</td><td class="col-d">${t.p}</td>
+      <td class="col-v">${t.g}</td><td class="col-e">${t.dr}</td><td class="col-d">${t.p}</td>
       <td class="col-gf">${t.gf}</td><td class="col-gc">${t.gc}</td>
       <td>${dgStr}</td><td><span class="pts">${p}</span></td>
     </tr>`;
