@@ -61,10 +61,11 @@
   .standings-table{width:100%;border-collapse:collapse;min-width:0;table-layout:fixed;}
   .standings-table th:nth-child(1){width:28px;}
   .standings-table th:nth-child(2){width:auto;}
-  .standings-table th:nth-child(3),.standings-table th:nth-child(4),
-  .standings-table th:nth-child(5),.standings-table th:nth-child(6),
-  .standings-table th:nth-child(7),.standings-table th:nth-child(8){width:30px;}
-  .standings-table th:nth-child(9){width:38px;}
+  .standings-table th:nth-child(3){width:30px;}
+  .standings-table th:nth-child(4),.standings-table th:nth-child(5),
+  .standings-table th:nth-child(6),.standings-table th:nth-child(7),
+  .standings-table th:nth-child(8),.standings-table th:nth-child(9){width:28px;}
+  .standings-table th:nth-child(10){width:38px;}
   .standings-table thead th{padding:9px 6px;text-align:center;font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);white-space:nowrap;}
   .standings-table thead th:nth-child(1),.standings-table thead th:nth-child(2){text-align:left;}
   .standings-table tbody tr{transition:background .15s;background:var(--surface);cursor:pointer;}
@@ -208,7 +209,7 @@
       <div class="league-badge" style="background:#2d0a47">🏴󠁧󠁢󠁥󠁮󠁧󠁿</div>
       <div><div class="league-title" style="color:var(--premier-c)">Premier League</div><div class="league-season">2025/26 · Inglaterra</div></div></div>
     <div class="table-wrapper"><table class="standings-table" id="table-premier">
-      <thead><tr><th style="width:28px">#</th><th>Club</th><th class="col-v">V</th><th class="col-e">E</th><th class="col-d">D</th><th class="col-gf">GF</th><th class="col-gc">GC</th><th>DIF</th><th>PTS</th></tr></thead>
+      <thead><tr><th style="width:28px">#</th><th>Club</th><th>PJ</th><th class="col-v">V</th><th class="col-e">E</th><th class="col-d">D</th><th class="col-gf">GF</th><th class="col-gc">GC</th><th>DIF</th><th>PTS</th></tr></thead>
       <tbody></tbody>
     </table></div>
     <div class="edit-hint">✏️ Toca un equipo para editar sus stats</div>
@@ -221,7 +222,7 @@
       <div><div class="league-title" style="color:var(--laliga-c)">La Liga</div><div class="league-season">2025/26 · España</div></div>
     </div>
     <div class="table-wrapper"><table class="standings-table" id="table-laliga">
-      <thead><tr><th style="width:28px">#</th><th>Club</th><th class="col-v">V</th><th class="col-e">E</th><th class="col-d">D</th><th class="col-gf">GF</th><th class="col-gc">GC</th><th>DIF</th><th>PTS</th></tr></thead>
+      <thead><tr><th style="width:28px">#</th><th>Club</th><th>PJ</th><th class="col-v">V</th><th class="col-e">E</th><th class="col-d">D</th><th class="col-gf">GF</th><th class="col-gc">GC</th><th>DIF</th><th>PTS</th></tr></thead>
       <tbody></tbody>
     </table></div>
     <div class="edit-hint">✏️ Toca un equipo para editar sus stats</div>
@@ -234,7 +235,7 @@
       <div><div class="league-title" style="color:var(--bundesliga-c)">Bundesliga</div><div class="league-season">2025/26 · Alemania</div></div>
     </div>
     <div class="table-wrapper"><table class="standings-table" id="table-bundesliga">
-      <thead><tr><th style="width:28px">#</th><th>Club</th><th class="col-v">V</th><th class="col-e">E</th><th class="col-d">D</th><th class="col-gf">GF</th><th class="col-gc">GC</th><th>DIF</th><th>PTS</th></tr></thead>
+      <thead><tr><th style="width:28px">#</th><th>Club</th><th>PJ</th><th class="col-v">V</th><th class="col-e">E</th><th class="col-d">D</th><th class="col-gf">GF</th><th class="col-gc">GC</th><th>DIF</th><th>PTS</th></tr></thead>
       <tbody></tbody>
     </table></div>
     <div class="edit-hint">✏️ Toca un equipo para editar sus stats</div>
@@ -247,7 +248,7 @@
       <div><div class="league-title" style="color:var(--seriea-c)">Serie A</div><div class="league-season">2025/26 · Italia</div></div>
     </div>
     <div class="table-wrapper"><table class="standings-table" id="table-seriea">
-      <thead><tr><th style="width:28px">#</th><th>Club</th><th class="col-v">V</th><th class="col-e">E</th><th class="col-d">D</th><th class="col-gf">GF</th><th class="col-gc">GC</th><th>DIF</th><th>PTS</th></tr></thead>
+      <thead><tr><th style="width:28px">#</th><th>Club</th><th>PJ</th><th class="col-v">V</th><th class="col-e">E</th><th class="col-d">D</th><th class="col-gf">GF</th><th class="col-gc">GC</th><th>DIF</th><th>PTS</th></tr></thead>
       <tbody></tbody>
     </table></div>
     <div class="edit-hint">✏️ Toca un equipo para editar sus stats</div>
@@ -260,7 +261,7 @@
       <div><div class="league-title" style="color:var(--ligue1-c)">Ligue 1</div><div class="league-season">2025/26 · Francia</div></div>
     </div>
     <div class="table-wrapper"><table class="standings-table" id="table-ligue1">
-      <thead><tr><th style="width:28px">#</th><th>Club</th><th class="col-v">V</th><th class="col-e">E</th><th class="col-d">D</th><th class="col-gf">GF</th><th class="col-gc">GC</th><th>DIF</th><th>PTS</th></tr></thead>
+      <thead><tr><th style="width:28px">#</th><th>Club</th><th>PJ</th><th class="col-v">V</th><th class="col-e">E</th><th class="col-d">D</th><th class="col-gf">GF</th><th class="col-gc">GC</th><th>DIF</th><th>PTS</th></tr></thead>
       <tbody></tbody>
     </table></div>
     <div class="edit-hint">✏️ Toca un equipo para editar sus stats</div>
@@ -736,16 +737,34 @@ function clinchRelegation(sorted, idx, zones, total) {
   return maxT < pts(sorted[safeIdx]);
 }
 
+function clinchZone(sorted, idx, zoneSlots, total) {
+  // Retorna true si el equipo ya no puede caer fuera de las primeras `zoneSlots` posiciones
+  if (!zoneSlots) return false;
+  const t = sorted[idx];
+  const minPts = pts(t);
+  // Contar cuántos equipos fuera de la zona (posición > zoneSlots) aún pueden igualar o superar al equipo
+  let canOvertake = 0;
+  for (let j = zoneSlots; j < sorted.length; j++) {
+    if (j === idx) continue;
+    const maxU = pts(sorted[j]) + 3 * (total - sorted[j].pj);
+    if (maxU >= minPts) canOvertake++;
+  }
+  // Si hay menos equipos que pueden alcanzarlo que posiciones disponibles en la zona, está asegurado
+  const spotsLeft = zoneSlots - idx; // cuántos spots de la zona quedan para él y los de arriba
+  return idx < zoneSlots && canOvertake === 0;
+}
+
 function secureBg(key, sorted, idx) {
   const zones = state.leagues[key].zones;
   const total = TOTAL_PJ[key];
-  const behind = clinchTopCount(sorted, idx, total);
   const kUcl = maxUclDirectPos(zones);
-  const kEu = maxZonePosEuro(zones);
-  if (behind < 1)                          return 'rgba(240,180,41,0.13)';   // campeón
-  if (kUcl && behind < kUcl)              return 'rgba(96,165,250,0.10)';   // UCL
-  if (kEu  && behind < kEu)               return 'rgba(249,115,22,0.10)';   // Europa
-  if (clinchRelegation(sorted, idx, zones, total)) return 'rgba(239,68,68,0.13)'; // descenso
+  // Campeón: nadie puede igualar o superar sus puntos
+  const behind = clinchTopCount(sorted, idx, total);
+  if (behind < 1) return 'rgba(240,180,41,0.13)';
+  // UCL asegurada: está en zona UCL y nadie de fuera puede entrar
+  if (kUcl && idx < kUcl && clinchZone(sorted, idx, kUcl, total)) return 'rgba(96,165,250,0.10)';
+  // Descenso matemático
+  if (clinchRelegation(sorted, idx, zones, total)) return 'rgba(239,68,68,0.13)';
   return '';
 }
 
@@ -771,7 +790,7 @@ function renderTable(key) {
     return `<tr class="${zoneClass(pos,ld.zones)}" ${bgStyle} data-league="${key}" data-team="${t.name}">
       <td><span class="pos-num">${pos}</span></td>
       <td><div class="team-cell">${teamLogo(t.name,16,'team-logo')}<span class="team-name">${t.name}</span></div></td>
-      <td class="col-v">${t.g}</td><td class="col-e">${t.dr}</td><td class="col-d">${t.p}</td>
+      <td>${t.pj}</td><td class="col-v">${t.g}</td><td class="col-e">${t.dr}</td><td class="col-d">${t.p}</td>
       <td class="col-gf">${t.gf}</td><td class="col-gc">${t.gc}</td>
       <td>${dgStr}</td><td><span class="pts">${p}</span></td>
     </tr>`;
