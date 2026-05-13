@@ -68,18 +68,21 @@
   .standings-table tbody tr:last-child td{border-bottom:none;}
   .standings-table tbody td{padding:8px 10px;text-align:center;border-bottom:1px solid rgba(255,255,255,.03);font-size:13px;white-space:nowrap;}
   .standings-table tbody td:nth-child(2){text-align:left;}
-  /* Portrait: solo PJ, DIF y PTS */
+  /* Portrait: mostrar PJ, V, E, D, DIF y PTS */
   @media (orientation:portrait) {
-    .col-v,.col-e,.col-d,.col-gf,.col-gc{display:none;}
+    .col-gf,.col-gc{display:none;}
+    .col-v,.col-e,.col-d{display:table-cell;}
     .table-wrapper{overflow-x:visible;}
     .standings-table tbody td:nth-child(2){white-space:normal;word-break:break-word;}
     .team-cell{min-width:0;font-size:12px;}
-    .standings-table thead th{padding:9px 6px;}
-    .standings-table tbody td{padding:8px 6px;}
+    .standings-table thead th{padding:8px 4px;font-size:9px;}
+    .standings-table tbody td{padding:7px 4px;font-size:12px;}
   }
   /* Landscape o pantalla ancha: todo visible */
   @media (orientation:landscape),(min-width:600px) {
     .col-v,.col-e,.col-d,.col-gf,.col-gc{display:table-cell;}
+    .standings-table thead th{padding:9px 10px;font-size:10px;}
+    .standings-table tbody td{padding:8px 10px;font-size:13px;}
   }
   .pos-num{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;color:var(--text2);width:24px;text-align:center;display:inline-block;}
   .team-cell{display:flex;align-items:center;gap:8px;font-weight:500;font-size:13px;min-width:120px;flex-wrap:wrap;}
@@ -733,7 +736,7 @@ function clinchRelegation(sorted, idx, zones, total) {
   if (safeIdx < 0 || safeIdx >= n) return false;
   const t = sorted[idx];
   const maxT = pts(t) + 3 * (total - t.pj);
-  return maxT < sorted[safeIdx].pts;
+  return maxT < pts(sorted[safeIdx]);
 }
 
 function secureBadgesHtml(key, sorted, idx) {
