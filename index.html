@@ -58,7 +58,14 @@
   .league-season{font-size:11px;color:var(--text2);margin-top:2px;}
 
   .table-wrapper{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:10px;border:1px solid var(--border);}
-  .standings-table{width:100%;border-collapse:collapse;min-width:0;}
+  .standings-table{width:100%;border-collapse:collapse;min-width:0;table-layout:fixed;}
+  .standings-table th:nth-child(1){width:34px;}
+  .standings-table th:nth-child(2){width:auto;}
+  .standings-table th:nth-child(3),.standings-table th:nth-child(4),
+  .standings-table th:nth-child(5),.standings-table th:nth-child(6),
+  .standings-table th:nth-child(7),.standings-table th:nth-child(8),
+  .standings-table th:nth-child(9){width:36px;}
+  .standings-table th:nth-child(10){width:42px;}
   .standings-table thead tr{background:var(--surface2);border-bottom:1px solid var(--border);}
   .standings-table thead th{padding:9px 10px;text-align:center;font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);white-space:nowrap;}
   .standings-table thead th:nth-child(1),.standings-table thead th:nth-child(2){text-align:left;}
@@ -72,8 +79,6 @@
   @media (orientation:portrait) {
     .col-gf,.col-gc{display:none;}
     .col-v,.col-e,.col-d{display:table-cell;}
-    .table-wrapper{overflow-x:visible;}
-    .standings-table tbody td:nth-child(2){white-space:normal;word-break:break-word;}
     .team-cell{min-width:0;font-size:12px;}
     .standings-table thead th{padding:8px 4px;font-size:9px;}
     .standings-table tbody td{padding:7px 4px;font-size:12px;}
@@ -85,7 +90,7 @@
     .standings-table tbody td{padding:8px 10px;font-size:13px;}
   }
   .pos-num{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;color:var(--text2);width:24px;text-align:center;display:inline-block;}
-  .team-cell{display:flex;align-items:center;gap:8px;font-weight:500;font-size:13px;min-width:120px;flex-wrap:nowrap;overflow:hidden;}
+  .team-cell{display:flex;align-items:center;gap:8px;font-weight:500;font-size:13px;flex-wrap:nowrap;overflow:hidden;}
   .team-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
   .team-emoji{font-size:15px;flex-shrink:0;line-height:1;}
   .team-logo{width:20px;height:20px;object-fit:contain;flex-shrink:0;display:block;}
