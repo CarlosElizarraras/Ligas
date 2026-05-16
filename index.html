@@ -735,7 +735,13 @@ function clinchRelegation(sorted, idx, zones, total) {
   const relSlots = zones.rel ? zones.rel.length : 0;
   if (!relSlots) return false;
   const n = sorted.length;
-  const safeIdx = n - relSlots - 1;
+  const relStartIdx = n - relSlots; // primer índice de descenso (0-based)
+
+  // Liga terminada: posición definitiva
+  const allFinished = sorted.every(t => t.pj >= total);
+  if (allFinished) return idx >= relStartIdx;
+
+  const safeIdx = relStartIdx - 1;
   if (safeIdx < 0 || safeIdx >= n) return false;
   const t = sorted[idx];
   const maxT = pts(t) + 3 * (total - t.pj);
@@ -743,56 +749,59 @@ function clinchRelegation(sorted, idx, zones, total) {
 }
 
 function clinchZone(sorted, idx, zoneSlots, total) {
+  // Si la temporada ya terminó para este equipo y todos los demás, la posición es definitiva
+  const allFinished = sorted.every(t => t.pj >= total);
+  if (allFinished) return true;
+
   // Retorna true si el equipo ya no puede caer fuera de las primeras `zoneSlots` posiciones
   if (!zoneSlots) return false;
   const t = sorted[idx];
   const minPts = pts(t);
-  // Contar cuántos equipos fuera de la zona (posición > zoneSlots) aún pueden igualar o superar al equipo
   let canOvertake = 0;
   for (let j = zoneSlots; j < sorted.length; j++) {
     if (j === idx) continue;
     const maxU = pts(sorted[j]) + 3 * (total - sorted[j].pj);
     if (maxU >= minPts) canOvertake++;
   }
-  // Si hay menos equipos que pueden alcanzarlo que posiciones disponibles en la zona, está asegurado
-  const spotsLeft = zoneSlots - idx; // cuántos spots de la zona quedan para él y los de arriba
   return idx < zoneSlots && canOvertake === 0;
 }
 
 function secureBg(key, sorted, idx) {
   const zones = state.leagues[key].zones;
   const total = TOTAL_PJ[key];
-  const kUcl  = zones.cl  ? Math.max(...zones.cl)  : 0;
-  const kClq  = zones.clq ? Math.max(...zones.clq) : 0;
-  const kEl   = zones.el  ? Math.max(...zones.el)  : 0;
-  const kEcl  = zones.ecl ? Math.max(...zones.ecl) : 0;
-  const kPlay = zones.play? Math.max(...zones.play): 0;
+
+  // Construir lista ordenada de zonas (de mayor a menor calidad),
+  // cada una con su rango EXCLUSIVO [minIdx, maxIdx) y su color.
+  // Usamos los arrays reales de posiciones para saber exactamente
+  // en qué rango está cada zona.
+  const zoneRanges = [];
+  const addZone = (arr, color) => {
+    if (!arr || !arr.length) return;
+    const minPos = Math.min(...arr); // posición mínima (1-based)
+    const maxPos = Math.max(...arr); // posición máxima (1-based)
+    zoneRanges.push({ minIdx: minPos - 1, maxIdx: maxPos - 1, slots: maxPos, color });
+  };
+  addZone(zones.cl,   'rgba(96,165,250,0.11)');   // Champions
+  addZone(zones.clq,  'rgba(234,179,8,0.11)');    // Clasif. Champions
+  addZone(zones.el,   'rgba(249,115,22,0.11)');   // Europa League
+  addZone(zones.ecl,  'rgba(132,204,22,0.11)');   // Conference
+  addZone(zones.play, 'rgba(168,85,247,0.11)');   // Playoff descenso
 
   // Campeón: nadie puede igualar o superar sus puntos
   const behind = clinchTopCount(sorted, idx, total);
   if (behind < 1) return 'rgba(240,180,41,0.13)';
 
-  // UCL asegurada (zona cl directa)
-  if (kUcl && idx < kUcl && clinchZone(sorted, idx, kUcl, total))
-    return 'rgba(96,165,250,0.10)';
+  // Buscar la zona a la que pertenece este equipo (idx) y verificar si la aseguró
+  for (const z of zoneRanges) {
+    if (idx >= z.minIdx && idx <= z.maxIdx) {
+      // El equipo está en esta zona: ¿ya la aseguró matemáticamente?
+      if (clinchZone(sorted, idx, z.slots, total)) return z.color;
+      // Si no la aseguró, no seguir buscando zonas inferiores
+      return '';
+    }
+  }
 
-  // Clasificación Champions (zona clq, si existe — ej. La Liga tiene pos 5 como clq)
-  if (kClq && idx < kClq && clinchZone(sorted, idx, kClq, total))
-    return 'rgba(234,179,8,0.10)';
-
-  // Europa League asegurada
-  if (kEl && idx < kEl && clinchZone(sorted, idx, kEl, total))
-    return 'rgba(249,115,22,0.10)';
-
-  // Conference League asegurada
-  if (kEcl && idx < kEcl && clinchZone(sorted, idx, kEcl, total))
-    return 'rgba(132,204,22,0.10)';
-
-  // Playoff (descenso/ascenso) asegurado en zona play
-  if (kPlay && idx < kPlay && clinchZone(sorted, idx, kPlay, total))
-    return 'rgba(168,85,247,0.10)';
-
-  // Descenso matemático
+  // Descenso matemático (equipos por debajo de todas las zonas positivas)
   if (clinchRelegation(sorted, idx, zones, total)) return 'rgba(239,68,68,0.13)';
 
   return '';
